@@ -1,6 +1,6 @@
 const Header = () => {
 	return (
-		<header className="flex w-full h-20 pl-60 items-center box-border bg-[#b43c2c] text-slate-50 font-bold">
+		<header className="flex w-full h-20 md:pl-60 items-center box-border bg-[#b43c2c] text-slate-50 font-bold p-1">
 			<div className="flex items-center">
 				<img
 					src="../public/Images/favicon.ico"

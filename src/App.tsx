@@ -190,7 +190,7 @@ function App() {
 	return (
 		<>
 			<Header />
-			<main className="flex flex-col verflow-auto items-center justify-center w-full h-full ">
+			<main className="flex flex-col verflow-auto items-center justify-center w-full h-full p-1">
 				<Aside />
 				<section className="flex flex-col mt-7 max-w-[750px] h-full  ">
 					<h1 className="text-4xl text-center font-semibold pt-3 w-full">
@@ -206,15 +206,15 @@ function App() {
 						any existing video or channel.
 					</p>
 					<div className="flex items-center justify-center text-opacity-70 pt-11 text-gray-950 font-bold gap-2">
-						<span className="font-medium text-xl text-orange-500">
+						<span className="font-medium sm:text-xl text-orange-500">
 							Claculate by views
 						</span>
 						|
-						<span className="font-medium text-xl text-orange-500">
+						<span className="font-medium sm:text-xl text-orange-500">
 							By video URL
 						</span>
 						|
-						<span className="font-medium text-xl text-orange-500">
+						<span className="font-medium sm:text-xl text-orange-500">
 							By channel URL
 						</span>
 					</div>
@@ -345,19 +345,19 @@ function App() {
 						<label className="mt-20 text-xl font-medium">
 							Estimated Daily Earnings
 						</label>
-						<div className="text-center text-3xl font-bold text-orange-500">
+						<div className="text-center sm:text-3xl font-bold text-orange-500">
 							{formmater(earnings[0][0])} ~ {formmater(earnings[0][1])}
 						</div>
 						<label className="mt-20 text-xl font-medium ">
 							Estimated Monthly Earnings
 						</label>
-						<div className="text-center text-3xl font-bold text-orange-500">
+						<div className="text-center sm:text-3xl font-bold text-orange-500">
 							{formmater(earnings[1][0])} ~ {formmater(earnings[1][1])}
 						</div>
 						<label className="mt-20 text-xl font-medium">
 							Estimated Yearly Earnings
 						</label>
-						<div className="mb-20 text-center text-3xl font-bold text-orange-500">
+						<div className="mb-20 text-center sm:text-3xl font-bold text-orange-500">
 							{formmater(earnings[2][0])} ~ {formmater(earnings[2][1])}
 						</div>
 					</div>
