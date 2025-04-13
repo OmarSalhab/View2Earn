@@ -1,47 +1,20 @@
 import "./App.css";
+import { useState, useRef, useEffect } from "react";
 import Header from "./components/Header";
 import PsudueCard from "./components/PsudueCard";
 import Aside from "./components/Aside";
-import { useState, useRef, useEffect } from "react";
+import { fetchByVideo } from "./utils/apiCall";
+import { formatCurrency } from "./utils/formatCurrency";
 
-const formmater = (number: number): string => {
-	const formatter = new Intl.NumberFormat("en-US", {
-		style: "currency",
-		currency: "USD",
-	});
-	return formatter.format(number);
-};
-const getVideoId = (url: string): string | undefined => {
-	const videoId =url.split(/[?&]/).find((param) => param.startsWith("v="))?.split("=")[1];
-	
-
-	return videoId?.trim()
-}
-
-const fetchByVideo = async (url: any)=>{
-
-	try{
-		const videoId = getVideoId(url);
-		if(!videoId) return;
-		 const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?key=AIzaSyAuhRNtRvOY75Fb26QMttOt1lfUNlOER5k&part=statistics&id=${videoId}`,{
-		 	method:"GET",
-			headers:{
-				"Content-Type":"application/json",
-				"Accept":"application/json",
-			}
-		}).then((res)=>res.json())
-		return res.items[0].statistics.viewCount
-	}catch(err){
-		console.error("Error fetching URL views:", err);
-	}
-}
 function App() {
 	const [views, setViews] = useState(17000);
 	const [country, setCountry] = useState<
 		keyof typeof countriesRPM | undefined
 	>();
-	const [url, setUrl] = useState<string>("");
-	const [fetchUrl, setFetchUrl] = useState<boolean>(false);
+	const [url, setUrl] = useState<{ path: string; valid: boolean }>({
+		path: "",
+		valid: false,
+	});
 	const [error, setError] = useState<boolean>(false);
 	const [niche, setNiche] = useState<keyof typeof nicheRPM | undefined>();
 	const [earnings, setEarnings] = useState<number[][]>([
@@ -49,7 +22,7 @@ function App() {
 		[0, 0],
 		[0, 0],
 	]);
-	const [urlViews, setUrlViews] = useState<number>(0);
+	const [VideoViews, setVideoViews] = useState<number>(0);
 	const sliderRef = useRef<HTMLDivElement>(null);
 
 	const countriesRPM = {
@@ -122,29 +95,11 @@ function App() {
 		}
 	}, [views, country, niche]);
 
-	useEffect(()=>{
-		try{
-			const getVideo = async ()=>{
-				const res = await fetchByVideo(url);
-				
-				if(res){
-					setUrlViews(res);
-				}
-			}
-			getVideo();
-		}
-		catch(err){
-			console.error("Error fetching video data:", err);
-		}
-		return ()=>{
-			setUrlViews(0);
-		}
-	},[fetchUrl])
-	const handleCountry = (e: any) => {
+	const handleCountry = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		if (e.target.value !== "--Select a Country--") setCountry(e.target.value);
 	};
 
-	const handleNiche = (e: any) => {
+	const handleNiche = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		if (e.target.value !== "--Select a Industry / Niche--")
 			setNiche(e.target.value);
 	};
@@ -171,21 +126,39 @@ function App() {
 	};
 
 	const validateUrl = () => {
-		const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
-		if (regex.test(url)) {
+		//https://www.youtube.com/watch?v=5nd4LB2MKU4
+		const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/watch\?v=/;
+		if (regex.test(url.path)) {
 			setError(false);
+			setUrl({ ...url, valid: true });
+			return true;
 		} else {
 			setError(true);
+			setUrl({ ...url, valid: false });
+			return false;
 		}
 	};
 	const handleUrl = (e: any) => {
-		setUrl(e.target.value);
+		setUrl({ ...url, path: e.target.value });
 	};
 
-	const handleSubmit = (e: any) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		validateUrl();
-		setFetchUrl(!fetchUrl);
+
+		if (validateUrl()) {
+			try {
+				const getVideoViews = async () => {
+					const res = await fetchByVideo(url.path);
+
+					if (res) {
+						setVideoViews(res);
+					}
+				};
+				getVideoViews();
+			} catch (err) {
+				console.error("Error fetching video data:", err);
+			}
+		}
 	};
 	return (
 		<>
@@ -346,19 +319,22 @@ function App() {
 							Estimated Daily Earnings
 						</label>
 						<div className="text-center sm:text-3xl font-bold text-orange-500">
-							{formmater(earnings[0][0])} ~ {formmater(earnings[0][1])}
+							{formatCurrency(earnings[0][0])} ~{" "}
+							{formatCurrency(earnings[0][1])}
 						</div>
 						<label className="mt-20 text-xl font-medium ">
 							Estimated Monthly Earnings
 						</label>
 						<div className="text-center sm:text-3xl font-bold text-orange-500">
-							{formmater(earnings[1][0])} ~ {formmater(earnings[1][1])}
+							{formatCurrency(earnings[1][0])} ~{" "}
+							{formatCurrency(earnings[1][1])}
 						</div>
 						<label className="mt-20 text-xl font-medium">
 							Estimated Yearly Earnings
 						</label>
 						<div className="mb-20 text-center sm:text-3xl font-bold text-orange-500">
-							{formmater(earnings[2][0])} ~ {formmater(earnings[2][1])}
+							{formatCurrency(earnings[2][0])} ~{" "}
+							{formatCurrency(earnings[2][1])}
 						</div>
 					</div>
 				</section>
@@ -440,7 +416,8 @@ function App() {
 										: "border-zinc-300 text-zinc-300"
 								} ${
 									error &&
-									"border-b-red-600 border-t-red-600 border-l-red-600 border-r-red-600 border-3"
+									url.path &&
+									"border-b-red-500 border-t-red-500 border-l-red-500 border-r-red-500 border-[3px] delay-200 scale-105 transition-all"
 								} w-[70%] h-8  border-2  text-left p-2 focus:outline-none `}
 								placeholder="eg., https://www.youtube.com/watch?v=sETzYOUjGzQ"
 								onChange={handleUrl}
@@ -453,8 +430,19 @@ function App() {
 								search
 							</button>
 						</div>
-						<label className="mt-20 text-lg font-semibold">Number of Total Video Views</label>
-						<div className="text-center text-3xl font-bold text-red-500">{formmater(urlViews)}</div>
+						<label className="mt-20 text-lg font-semibold">
+							Number of Total Video Views
+						</label>
+						<div className="text-center text-3xl font-bold text-red-500">
+							{VideoViews}
+						</div>
+						<label className="mt-20 text-xl font-semibold bg-white min-w-24 px-12 py-2 flex justify-center items-center">
+							Estimated Daily Earnings
+						</label>
+						<div className="text-center sm:text-3xl font-bold text-orange-500 border-2 border-red-500 flex justify-center items-center h-48 w-[90%]">
+							{formatCurrency(earnings[0][0])} ~{" "}
+							{formatCurrency(earnings[0][1])}
+						</div>
 					</div>
 				</section>
 			</main>
