@@ -4,7 +4,7 @@ import Header from "./components/Header";
 import PsudueCard from "./components/PsudueCard";
 import Aside from "./components/Aside";
 import { fetchByVideo } from "./utils/apiCall";
-import { formatCurrency } from "./utils/formatCurrency";
+import { formatCurrency, formatViews } from "./utils/formatCurrency";
 
 function App() {
 	const [views, setViews] = useState(17000);
@@ -22,7 +22,8 @@ function App() {
 		[0, 0],
 		[0, 0],
 	]);
-	const [VideoViews, setVideoViews] = useState<number>(0);
+	const [videoViews, setVideoViews] = useState<number>(0);
+	const [videoEarnings, setVideoEarnings] = useState<number[]>([0, 0]);
 	const sliderRef = useRef<HTMLDivElement>(null);
 
 	const countriesRPM = {
@@ -64,6 +65,7 @@ function App() {
 		"Business & Entrepreneurship": [6.0, 18.0], // High max for premium content
 		"Health & Fitness": [2.5, 10.0], // Wide variability (supplements vs. general)
 		Education: [2.0, 9.89], // Free tutorials vs. paid courses
+		Entertainment: [2.0, 3.5],
 		"Real Estate": [3.0, 8.0], // Local markets vary
 		"Travel & Lifestyle": [1.5, 9.0], // Luxury travel vs. budget guides
 		Gaming: [0.5, 1.4], // Low RPM unless sponsored
@@ -78,7 +80,7 @@ function App() {
 			const dailyMinEarnings = (((dailyMinRPM * views) / 1000) * 1.3).toFixed(
 				2
 			); // (1.25 * 100000)/1000 = $125
-			const dailyMaxEarnings = (((dailyMaxRPM * views) / 1000) * 0.6).toFixed(
+			const dailyMaxEarnings = (((dailyMaxRPM * views) / 1000) * 0.65).toFixed(
 				2
 			);
 
@@ -94,6 +96,28 @@ function App() {
 			setEarnings([dailyEarning, monthlyEarning, yearlyEarning]);
 		}
 	}, [views, country, niche]);
+
+	useEffect(() => {
+		if (country && niche) {
+			// Calculate MIN and MAX possible earnings:
+			const dailyMinRPM = countriesRPM[country][0] * nicheRPM[niche][0]; // 0.25 * 5.0 = 1.25
+			const dailyMaxRPM = countriesRPM[country][1] * nicheRPM[niche][1]; // 0.7 * 12.25 = 8.575
+
+			// Earnings for 100K views:
+			const dailyMinEarnings = (
+				((dailyMinRPM * videoViews) / 1000) *
+				1.1
+			).toFixed(2); // (1.25 * 100000)/1000 = $125
+			const dailyMaxEarnings = (
+				((dailyMaxRPM * videoViews) / 1000) *
+				0.55
+			).toFixed(2);
+
+			const dailyEarning = [dailyMinEarnings, dailyMaxEarnings];
+
+			setVideoEarnings(dailyEarning);
+		}
+	}, [videoViews, country, niche]);
 
 	const handleCountry = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		if (e.target.value !== "--Select a Country--") setCountry(e.target.value);
@@ -191,6 +215,8 @@ function App() {
 							By channel URL
 						</span>
 					</div>
+
+					{/* VIEWS CALCULATER */}
 					<h2 className="text-3xl text-center font-semibold pt-12 ">
 						Projected YouTube revenue by daily views
 					</h2>
@@ -221,7 +247,10 @@ function App() {
 					<div className="flex flex-col gap-4 w-full bg-[#faf7f7b9] items-center justify-center">
 						<label className="mt-20 text-xl font-medium">
 							Target Country (
-							<span className="text-red-500">where ads are shown</span>)
+							<span className="text-red-500 font-semibold">
+								where ads are shown
+							</span>
+							)
 						</label>
 						<select
 							onChange={handleCountry}
@@ -338,6 +367,9 @@ function App() {
 						</div>
 					</div>
 				</section>
+				{/* ************************************** VIEWS CALCULATER ************************************** */}
+
+				{/* VIDEOID CALCULATER */}
 				<section className="flex flex-col mt-7 max-w-[750px] h-full">
 					<h2 className="text-3xl text-center font-semibold pt-12 ">
 						Estimate YouTube revenue of existing video
@@ -363,7 +395,10 @@ function App() {
 					<div className="flex flex-col gap-4 w-full bg-[#faf7f7b9] items-center justify-center mb-20">
 						<label className="mt-20 text-xl font-medium">
 							Target Country (
-							<span className="text-red-500">where ads are shown</span>)
+							<span className="text-red-500 font-semibold">
+								where ads are shown
+							</span>
+							)
 						</label>
 						<select
 							onChange={handleCountry}
@@ -418,7 +453,7 @@ function App() {
 									error &&
 									url.path &&
 									"border-b-red-500 border-t-red-500 border-l-red-500 border-r-red-500 border-[3px] delay-200 scale-105 transition-all"
-								} w-[70%] h-8  border-2  text-left p-2 focus:outline-none `}
+								} w-[70%] h-8  border-2 text-left p-2 focus:outline-none `}
 								placeholder="eg., https://www.youtube.com/watch?v=sETzYOUjGzQ"
 								onChange={handleUrl}
 							/>
@@ -434,16 +469,162 @@ function App() {
 							Number of Total Video Views
 						</label>
 						<div className="text-center text-3xl font-bold text-red-500">
-							{VideoViews}
+							{formatViews(videoViews)}
 						</div>
-						<label className="mt-20 text-xl font-semibold bg-white min-w-24 px-12 py-2 flex justify-center items-center">
-							Estimated Daily Earnings
-						</label>
-						<div className="text-center sm:text-3xl font-bold text-orange-500 border-2 border-red-500 flex justify-center items-center h-48 w-[90%]">
-							{formatCurrency(earnings[0][0])} ~{" "}
-							{formatCurrency(earnings[0][1])}
+						<div className="relative w-full mt-16 flex justify-center items-center">
+							<label className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#faf7f7] sm:px-16 flex justify-center min-w-[75%] sm:text-xl font-semibold">
+								Estimated Total Earnings
+							</label>
+							<div className="text-center sm:text-3xl font-bold text-orange-500 border-2 border-red-500  rounded-md border-dashed flex justify-center items-center h-48 w-[90%]">
+								{formatCurrency(videoEarnings[0])} ~{" "}
+								{formatCurrency(videoEarnings[1])}
+							</div>
 						</div>
 					</div>
+				</section>
+				{/* ************************************** VIDEOID CALCULATER ************************************** */}
+				<img
+					src="public\Images\make-money-on-youtube.webp"
+					className="-mt-8 md:max-w-[750px] h-full"
+				/>
+				{/* CHANNEL CALCULATER */}
+				<section className="flex flex-col mt-7 max-w-[750px] h-full">
+					<h2 className="text-3xl text-center font-semibold pt-12 ">
+						Estimate YouTube Revenue for a Channel
+					</h2>
+					<p className="text-[15px] text-center pt-12 leading-7 text-opacity-70 font-bold text-gray-950 w-full">
+						This calculator estimates the total money earned by a specific
+						YouTube channel. Enter a valid channel URL to estimate how much that
+						cahnnel earned (or could have earned) from YouTube monetization.
+					</p>
+					<PsudueCard color="primary">
+						<p>
+							Use this calculator for an overall channel assessment that not
+							only helps with your long term monetization planning but also
+							helps you analyze the competition.
+						</p>
+					</PsudueCard>
+					<PsudueCard color="error">
+						<p className="font-extrabold text-black">
+							See more monetized countries - log in to your
+							<span className="text-orange-500">TunePocket Account</span>
+						</p>
+					</PsudueCard>
+					<div className="flex flex-col gap-4 w-full bg-[#faf7f7b9] items-center justify-center mb-20">
+						<label className="mt-20 text-xl font-medium">
+							Target Country (
+							<span className="text-red-500 font-semibold">
+								where ads are shown
+							</span>
+							)
+						</label>
+						<select
+							onChange={handleCountry}
+							name="select a country"
+							className="text-lg border border-black"
+							defaultValue={"--Select a Country--"}
+						>
+							<option value="--Select a Country--" disabled>
+								--Select a Country--
+							</option>
+							{Object.keys(countriesRPM).map((country) => {
+								return (
+									<option key={country} value={country}>
+										{country}
+									</option>
+								);
+							})}
+							;
+						</select>
+
+						<label className="mt-20 text-xl font-medium">
+							Industry / Niche
+						</label>
+						<select
+							onClick={handleNiche}
+							defaultValue={"--Select a Industry / Niche--"}
+							className="text-md border-black border"
+						>
+							<option value="--Select a Industry / Niche--" disabled>
+								--Select a Industry / Niche--
+							</option>
+							{Object.keys(nicheRPM).map((niche) => {
+								return (
+									<option key={niche} value={niche}>
+										{niche}
+									</option>
+								);
+							})}
+						</select>
+						<label className="mt-20 text-lg font-semibold">
+							Enter YouTube Video URL
+						</label>
+						<div className="flex w-full justify-center ">
+							<input
+								disabled={country && niche ? false : true}
+								type="text"
+								className={`${
+									country && niche
+										? "border-t-fuchsia-950 border-b-red-800"
+										: "border-zinc-300 text-zinc-300"
+								} ${
+									error &&
+									url.path &&
+									"border-b-red-500 border-t-red-500 border-l-red-500 border-r-red-500 border-[3px] delay-200 scale-105 transition-all"
+								} w-[70%] h-8  border-2 text-left p-2 focus:outline-none `}
+								placeholder="eg., https://www.youtube.com/watch?v=sETzYOUjGzQ"
+								onChange={handleUrl}
+							/>
+							<button
+								onClick={handleSubmit}
+								disabled={country && niche ? false : true}
+								className="h-8  border-2  text-center focus:outline-none bg-zinc-300 w-24"
+							>
+								search
+							</button>
+						</div>
+						<label className="mt-20 text-lg font-semibold">
+							Number of Total Channel Views
+						</label>
+						<div className="text-center text-3xl font-bold text-red-500">
+							{formatViews(videoViews)}
+						</div>
+						<div className="relative w-full mt-16 flex justify-center items-center">
+							<label className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#faf7f7] sm:px-16 flex justify-center min-w-[75%] sm:text-xl font-semibold">
+								Estimated Total Earnings
+							</label>
+							<div className="text-center sm:text-3xl font-bold text-orange-500 border-2 border-red-500  rounded-md border-dashed flex justify-center items-center h-48 w-[90%]">
+								{formatCurrency(videoEarnings[0])} ~{" "}
+								{formatCurrency(videoEarnings[1])}
+							</div>
+						</div>
+					</div>
+				</section>
+				{/* ************************************** CHANNEL CALCULATER ************************************** */}
+				<section>
+					<h4 className="text-3xl text-center font-semibold pt-12 ">How to use YouTube money calculators</h4>
+					<p>Trying to decide whether you should monetize your channel?</p>
+					<p>
+						Curious to know how much money popular YouTubers earn on YouTube?
+					</p>
+					<p>
+						Use our free YouTube revenue calculators to estimate (*) how much
+						YouTube pays.
+					</p>
+					<p>Projected Revenue By Daily Views Calculator</p>
+					<p>
+						Use this to estimate total earnings based on how many videos you’ve
+						uploaded. It’s great for content planning, helping you understand
+						how volume affects potential revenue.
+					</p>{" "}
+					Estimated Revenue Of A Video Calculator Perfect for analyzing a single
+					video’s performance. Paste a link to get an earnings estimate based on
+					that video’s actual views, niche, and audience location. Estimated
+					Revenue For A Channel Calculator Ideal for getting a full-picture
+					revenue estimate for any channel. Just drop in the channel link to see
+					how much it’s likely earning overall, which is useful for benchmarking
+					or competitive research. Related: How YouTube ads work Learn more
+					about making money on YouTube.
 				</section>
 			</main>
 		</>

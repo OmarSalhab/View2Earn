@@ -1,7 +1,7 @@
 
 const PsudueCard = ({ children, color }: {children: React.ReactNode, color:string}) => {
 	return (
-		<div className=" mt-6 relative">
+		<div className=" mt-6 relative ">
 			<div
 				className={`text-[14px] px-10 py-3 leading-7 text-center text-opacity-70 font-bold
 					 text-gray-950 ${color === 'primary'? "bg-[#d1ecc9]": "bg-[#f3f0dc]"} rounded-sm before:content-[''] before:absolute

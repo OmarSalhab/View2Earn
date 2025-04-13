@@ -2,7 +2,7 @@ const Aside = () => {
 	return (
 		<>
 			{/* big screen */}
-			<aside className=" fixed right-2 lg:flex top-48 hidden flex-col gap-2 w-[73px] h-[300px] ">
+			<aside className=" fixed right-2 lg:flex top-48 hidden flex-col gap-2 w-[73px] h-[300px] z-10">
 				<button className="w-full rounded-lg  h-[25%] hover:bg-slate-700">
 					<a href="#">
 						<div className="rounded-lg ">
@@ -61,7 +61,7 @@ const Aside = () => {
 			</aside>
             
 			{/* small screen */}
-			<aside className="fixed left-2 lg:hidden bottom-2 block w-[73px] h-[80px]">
+			<aside className="fixed left-2 lg:hidden bottom-2 block w-[73px] h-[80px] z-10">
 				<button className="w-full rounded-lg  h-full hover:bg-slate-700">
 					<a href="#">
 						<div className="rounded-lg ">
