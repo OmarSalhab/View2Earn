@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import Header from "./components/Header";
 import PsudueCard from "./components/PsudueCard";
 import Aside from "./components/Aside";
-import { fetchByVideo } from "./utils/apiCall";
+import { fetchByVideo, fetchByChannel } from "./utils/apiCall";
 import { formatCurrency, formatViews } from "./utils/formatCurrency";
 
 function App() {
@@ -22,8 +22,18 @@ function App() {
 		[0, 0],
 		[0, 0],
 	]);
-	const [videoViews, setVideoViews] = useState<number>(0);
+	const [videoViews, setVideoViews] = useState<number>({
+		viewCount: 0,
+		thumbnail: "",
+	});
 	const [videoEarnings, setVideoEarnings] = useState<number[]>([0, 0]);
+	const [channelEarnings, setChannelEarnings] = useState<object>({
+		viewCount: 0,
+		title: "",
+		country: "",
+		image: null,
+		banner: "",
+	});
 	const sliderRef = useRef<HTMLDivElement>(null);
 
 	const countriesRPM = {
@@ -105,11 +115,11 @@ function App() {
 
 			// Earnings for 100K views:
 			const dailyMinEarnings = (
-				((dailyMinRPM * videoViews) / 1000) *
+				((dailyMinRPM * videoViews.viewCount) / 1000) *
 				1.1
 			).toFixed(2); // (1.25 * 100000)/1000 = $125
 			const dailyMaxEarnings = (
-				((dailyMaxRPM * videoViews) / 1000) *
+				((dailyMaxRPM * videoViews.viewCount) / 1000) *
 				0.55
 			).toFixed(2);
 
@@ -166,7 +176,7 @@ function App() {
 		setUrl({ ...url, path: e.target.value });
 	};
 
-	const handleSubmit = async (e: React.FormEvent) => {
+	const handleVideoSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		if (validateUrl()) {
@@ -182,6 +192,21 @@ function App() {
 			} catch (err) {
 				console.error("Error fetching video data:", err);
 			}
+		}
+	};
+
+	const handleChannelSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		try {
+			const channelData = await fetchByChannel(url.path);
+			console.log(channelData);
+			
+			if (channelData) {
+				setChannelEarnings(channelData);
+			}
+		} catch (err) {
+			console.error("Error fetching channel data:", err);
+			return [];
 		}
 	};
 	return (
@@ -203,25 +228,36 @@ function App() {
 						any existing video or channel.
 					</p>
 					<div className="flex items-center justify-center text-opacity-70 pt-11 text-gray-950 font-bold gap-2">
-						<span 
-						onClick={()=>{
-							document.getElementById("calc-views")?.scrollIntoView({behavior:'smooth'})
-						}}
-						className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer">
+						<span
+							onClick={() => {
+								document
+									.getElementById("calc-views")
+									?.scrollIntoView({ behavior: "smooth" });
+							}}
+							className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer"
+						>
 							Claculate by views
 						</span>
 						|
 						<span
-						onClick={()=>{document.getElementById("calc-video")?.scrollIntoView({behavior:'smooth'})}}
-						className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer">
+							onClick={() => {
+								document
+									.getElementById("calc-video")
+									?.scrollIntoView({ behavior: "smooth" });
+							}}
+							className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer"
+						>
 							By video URL
 						</span>
 						|
-						<span 
-						onClick={()=>{
-							document.getElementById("calc-channel")?.scrollIntoView({behavior:'smooth'})
-						}}
-						className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer">
+						<span
+							onClick={() => {
+								document
+									.getElementById("calc-channel")
+									?.scrollIntoView({ behavior: "smooth" });
+							}}
+							className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer"
+						>
 							By channel URL
 						</span>
 					</div>
@@ -235,11 +271,14 @@ function App() {
 						number of views. Move the slider below left or right to set the
 						number of views. Some popular numbers are 1000, 100,000 and 1
 						million views. See{" "}
-						<span 
-						onClick={()=>{
-							document.getElementById("how-calc-work")?.scrollIntoView({behavior:'smooth'})
-						}}
-						className="sm:text-[15px] text-orange-500 hover:text-black cursor-pointer">
+						<span
+							onClick={() => {
+								document
+									.getElementById("how-calc-work")
+									?.scrollIntoView({ behavior: "smooth" });
+							}}
+							className="sm:text-[15px] text-orange-500 hover:text-black cursor-pointer"
+						>
 							how we calculate the earnings.
 						</span>
 					</p>
@@ -258,7 +297,10 @@ function App() {
 					</PsudueCard>
 
 					{/* Calculate by Views */}
-					<div id="calc-views" className="flex flex-col gap-4 w-full bg-[#faf7f7b9] items-center justify-center">
+					<div
+						id="calc-views"
+						className="flex flex-col gap-4 w-full bg-[#faf7f7b9] items-center justify-center"
+					>
 						<label className="mt-20 text-xl font-medium">
 							Target Country (
 							<span className="text-red-500 font-semibold">
@@ -384,7 +426,10 @@ function App() {
 				{/* ************************************** VIEWS CALCULATER ************************************** */}
 
 				{/* VIDEOID CALCULATER */}
-				<section id="calc-video" className="flex flex-col mt-7 max-w-[750px] h-full">
+				<section
+					id="calc-video"
+					className="flex flex-col mt-7 max-w-[750px] h-full"
+				>
 					<h2 className="text-3xl text-center font-semibold pt-12 ">
 						Estimate YouTube revenue of existing video
 					</h2>
@@ -472,18 +517,25 @@ function App() {
 								onChange={handleUrl}
 							/>
 							<button
-								onClick={handleSubmit}
+								onClick={handleVideoSubmit}
 								disabled={country && niche ? false : true}
 								className="h-8  border-2  text-center focus:outline-none bg-zinc-300 w-24"
 							>
 								search
 							</button>
 						</div>
+						{videoViews.thumbnail && (
+							<img
+								src={videoViews?.thumbnail}
+								alt="Video Thumbnail"
+								className="w-[85%] h-56 mt-5 rounded-md"
+							/>
+						)}
 						<label className="mt-20 text-lg font-semibold">
 							Number of Total Video Views
 						</label>
 						<div className="text-center text-3xl font-bold text-red-500">
-							{formatViews(videoViews)}
+							{formatViews(videoViews?.viewCount)}
 						</div>
 						<div className="relative w-full mt-16 flex justify-center items-center mb-8">
 							<label className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#faf7f7] sm:px-16 flex justify-center min-w-[75%] sm:text-xl font-semibold">
@@ -502,7 +554,10 @@ function App() {
 					className="-mt-8 md:max-w-[750px] h-full"
 				/>
 				{/* CHANNEL CALCULATER */}
-				<section id="calc-channel" className="flex flex-col mt-7 max-w-[750px] h-full">
+				<section
+					id="calc-channel"
+					className="flex flex-col mt-7 max-w-[750px] h-full"
+				>
 					<h2 className="text-3xl text-center font-semibold pt-12 ">
 						Estimate YouTube Revenue for a Channel
 					</h2>
@@ -571,7 +626,7 @@ function App() {
 							})}
 						</select>
 						<label className="mt-20 text-lg font-semibold">
-							Enter YouTube Video URL
+							Enter YouTube Channel URL
 						</label>
 						<div className="flex w-full justify-center ">
 							<input
@@ -590,18 +645,43 @@ function App() {
 								onChange={handleUrl}
 							/>
 							<button
-								onClick={handleSubmit}
+								onClick={handleChannelSubmit}
 								disabled={country && niche ? false : true}
 								className="h-8  border-2  text-center focus:outline-none bg-zinc-300 w-24"
 							>
 								search
 							</button>
 						</div>
+						{(channelEarnings.banner ||
+							channelEarnings.image ||
+							channelEarnings.title) && (
+							<>
+								<div className="relative w-[85%] h-48 mt-10">
+									{/* Banner Image */}
+									<img
+										src={channelEarnings?.banner}
+										alt="Channel Banner"
+										className="w-full h-full object-cover rounded-md"
+									/>
+
+									{/* Profile Image */}
+									<img
+										src={channelEarnings?.image}
+										alt="Channel Profile"
+										className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full border-4 border-[#b43c2c] shadow-lg"
+									/>
+								</div>
+								<label className="mt-5 text-2xl font-semibold text-center">
+									{channelEarnings?.title}
+								</label>
+							</>
+						)}
+
 						<label className="mt-20 text-lg font-semibold">
 							Number of Total Channel Views
 						</label>
 						<div className="text-center text-3xl font-bold text-red-500">
-							{formatViews(videoViews)}
+							{formatViews(channelEarnings?.viewCount)}
 						</div>
 						<div className="relative w-full mt-16 flex justify-center items-center">
 							<label className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#faf7f7] sm:px-16 flex justify-center min-w-[75%] sm:text-xl font-semibold">
@@ -658,9 +738,10 @@ function App() {
 							overall, which is useful for benchmarking or competitive research.
 							<br /> <br />
 							Related:{" "}
-							<span
-							 className="text-orange-600 text-[17px] hover:text-black cursor-pointer">
-								<a href="https://support.google.com/youtube/answer/7438625?hl=en#:~:text=Ads%20are%20served%20through%20the,the%20content%20is%20advertiser%2Dfriendly.">How YouTube ads work</a>
+							<span className="text-orange-600 text-[17px] hover:text-black cursor-pointer">
+								<a href="https://support.google.com/youtube/answer/7438625?hl=en#:~:text=Ads%20are%20served%20through%20the,the%20content%20is%20advertiser%2Dfriendly.">
+									How YouTube ads work
+								</a>
 							</span>
 							<br />
 							<br />
@@ -674,7 +755,10 @@ function App() {
 					</div>
 				</section>
 
-				<section id="how-calc-work" className="flex flex-col max-w-[750px] h-full">
+				<section
+					id="how-calc-work"
+					className="flex flex-col max-w-[750px] h-full"
+				>
 					<h4 className="text-3xl font-semibold">
 						How we calculate the earnings
 					</h4>
@@ -745,8 +829,7 @@ function App() {
 							Related:{" "}
 							<span className="text-orange-600 text-[17px] hover:text-black cursor-pointer">
 								<a href="https://sellfy.com/blog/best-youtube-content-types/">
-
-								What types of videos make most money on YouTube
+									What types of videos make most money on YouTube
 								</a>
 							</span>
 						</p>
@@ -772,7 +855,6 @@ function App() {
 							revenue metrics for that specific market, which helps tailor your
 							content strategy to the audience you primarily serve.
 						</p>
-
 					</div>
 				</section>
 
@@ -781,7 +863,7 @@ function App() {
 					className="mt-10 md:max-w-[750px] h-full"
 				/>
 				<section className="flex flex-col max-w-[750px] h-full">
-						<h6 className="pt-10 pb-5 font-bold  text-3xl">Disclaimer</h6>
+					<h6 className="pt-10 pb-5 font-bold  text-3xl">Disclaimer</h6>
 					<PsudueCard color="primary">
 						<p className="text-left">
 							Important Notice: These are the ESTIMATED YouTube monetization
@@ -817,10 +899,9 @@ function App() {
 						<br />
 						<br /> Note that certain topics are not eligible for advertisement
 						at all. See{" "}
-						<span className="text-orange-600 text-[17px] hover:text-black cursor-pointer" >
+						<span className="text-orange-600 text-[17px] hover:text-black cursor-pointer">
 							<a href="https://support.google.com/adsense/answer/48182">
-							AdSense policy
-
+								AdSense policy
 							</a>
 						</span>{" "}
 						for more information on what videos are allowed into YouTube
