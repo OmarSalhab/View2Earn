@@ -203,15 +203,15 @@ function App() {
 						any existing video or channel.
 					</p>
 					<div className="flex items-center justify-center text-opacity-70 pt-11 text-gray-950 font-bold gap-2">
-						<span className="font-medium sm:text-xl text-orange-500">
+						<span className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer">
 							Claculate by views
 						</span>
 						|
-						<span className="font-medium sm:text-xl text-orange-500">
+						<span className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer">
 							By video URL
 						</span>
 						|
-						<span className="font-medium sm:text-xl text-orange-500">
+						<span className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer">
 							By channel URL
 						</span>
 					</div>
@@ -471,7 +471,7 @@ function App() {
 						<div className="text-center text-3xl font-bold text-red-500">
 							{formatViews(videoViews)}
 						</div>
-						<div className="relative w-full mt-16 flex justify-center items-center">
+						<div className="relative w-full mt-16 flex justify-center items-center mb-8">
 							<label className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#faf7f7] sm:px-16 flex justify-center min-w-[75%] sm:text-xl font-semibold">
 								Estimated Total Earnings
 							</label>
@@ -601,30 +601,216 @@ function App() {
 					</div>
 				</section>
 				{/* ************************************** CHANNEL CALCULATER ************************************** */}
-				<section>
-					<h4 className="text-3xl text-center font-semibold pt-12 ">How to use YouTube money calculators</h4>
-					<p>Trying to decide whether you should monetize your channel?</p>
-					<p>
-						Curious to know how much money popular YouTubers earn on YouTube?
+				<section className="flex flex-col max-w-[750px] h-full">
+					<h4 className="text-3xl font-semibold">
+						How to use YouTube money calculators
+					</h4>
+					<div className="text-md mt-14">
+						<p className="opacity-60 font-semibold leading-[50px] text-[15px]">
+							Trying to decide whether you should monetize your channel?
+							<br />
+							Curious to know how much money popular YouTubers earn on YouTube?
+							<br />
+							Use our free YouTube revenue calculators to estimate (
+							<span className="text-orange-700">*</span>) how much YouTube pays.
+						</p>
+						<h6 className="pt-6 pb-3 font-bold text-md leading-4">
+							Projected Revenue By Daily Views Calculator
+							<br />
+						</h6>
+						<p className="opacity-60 font-semibold text-[15px]">
+							Use this to estimate total earnings based on how many videos
+							you've uploaded. It's great for content planning, helping you
+							understand how volume affects potential revenue.
+							<br />
+						</p>
+						<h6 className="pt-6 pb-3 font-bold text-md leading-4">
+							Estimated Revenue Of A Video Calculator
+							<br />
+						</h6>
+						<p className="opacity-60 font-semibold text-[15px]">
+							Perfect for analyzing a single video's performance. Paste a link
+							to get an earnings estimate based on that video's actual views,
+							niche, and audience location.
+							<br />
+						</p>
+						<h6 className="pt-6 pb-3 font-bold text-md leading-4">
+							Estimated Revenue For A Channel Calculator
+							<br />
+						</h6>
+						<p className="opacity-60 font-semibold text-[15px]">
+							Ideal for getting a full-picture revenue estimate for any channel.
+							Just drop in the channel link to see how much it's likely earning
+							overall, which is useful for benchmarking or competitive research.
+							<br /> <br />
+							Related:{" "}
+							<span className="text-orange-600 text-[17px] hover:text-black cursor-pointer">
+								How YouTube ads work
+							</span>
+							<br />
+							<br />
+							Learn more about making{" "}
+							<span className="text-orange-600 cursor-pointer hover:text-black ">
+								money on YouTube
+							</span>
+							.<br />
+							<br />
+						</p>
+					</div>
+				</section>
+
+				<section className="flex flex-col max-w-[750px] h-full">
+					<h4 className="text-3xl font-semibold">
+						How we calculate the earnings
+					</h4>
+					<div className="text-md mt-14">
+						<p className="opacity-60 font-semibold text-[15px] leading-[27px]">
+							The YouTube earnings calculators estimate the potential income
+							from monetizing YouTube videos and channels by using a metric
+							called RPM (Revenue Per Mille), which stands for revenue per 1,000
+							views.
+							<br />
+						</p>
+						<PsudueCard color="primary">
+							<p className="text-left">
+								RPM includes both ad impressions and other monetized
+								interactions (e.g., memberships, Super Chats, etc.)
+							</p>
+						</PsudueCard>
+						<p className="opacity-60 font-semibold text-[15px] pt-5 leading-[27px]">
+							💰 RPM is one of the most realistic metrics for estimating your
+							actual YouTube earnings, because it reflects your net revenue
+							after YouTube's cut is taken out (currently 45%).
+							<br />
+						</p>
+						<h6 className="pt-10 pb-5 font-bold  text-2xl">How RPM Works</h6>
+						<p className="opacity-60 font-semibold text-[15px] leading-[50px]">
+							Your RPM is influenced by a combination of factors:
+							<br />
+							– Your niche (e.g., finance, gaming, cooking).
+							<br />
+							– Your audience's location (e.g., U.S., India, Brazil).
+							<br />
+							– Your content quality and advertiser-friendliness.
+							<br />– Your monetization tier, which is shaped by the size of
+							your audience and their engagement.
+						</p>
+						<h6 className="pt-10 pb-5 font-bold  text-2xl">
+							Realistic RPM Ranges (based on this year's data)
+						</h6>
+						<p className="opacity-60 font-semibold text-[15px] leading-[50px]">
+							With the latest region and niche specific RPM data, RPMs can vary
+							widely:
+							<br />
+							Finance/business content in high-tier countries (like the U.S. or
+							Germany) can see RPMs between $10 to $22+.
+							<br />
+							General entertainment or gaming content in mid-tier countries
+							might average around $0.50 to $4.00.
+							<br />
+							Low-tier or newly monetized regions may see RPMs below $1.00.
+							<br />
+						</p>
+						<PsudueCard color="primary">
+							<p className="text-left ">
+								Advertiser-friendly videos (videos without profanity, violence,
+								or sexually suggestive content) tend to attract more bids and
+								higher-paying advertisers, resulting in better RPM rates.
+							</p>
+						</PsudueCard>
+						<p className="opacity-60 font-semibold text-[15px] leading-[27px] mt-6">
+							Keep that in mind when researching your niche!
+							<br />
+							<br /> ✅ Tip: When researching niches or planning content,
+							consider both the advertiser demand and the audience’s location,
+							since both significantly impact your earnings potential.
+							<br />
+						</p>
+						<p className="opacity-60 font-semibold text-[15px] leading-[50px]">
+							Related:{" "}
+							<span className="text-orange-600 text-[17px] hover:text-black cursor-pointer">
+								<a href="https://sellfy.com/blog/best-youtube-content-types/">
+
+								What types of videos make most money on YouTube
+								</a>
+							</span>
+						</p>
+						<p className="opacity-60 font-semibold text-[15px] leading-[50px]">
+							Fine tune your monetization strategy with our free{" "}
+							<span className="text-orange-600 text-[17px] hover:text-black cursor-pointer">
+								YouTube money calculator
+							</span>
+							.
+						</p>
+						<h6 className="pt-10 pb-5 font-bold  text-2xl">
+							Target Country Explained
+						</h6>
+						<p className="opacity-60 font-semibold text-[15px] mt-6 leading-[27px]">
+							The "Country" dropdown represents the geographic location of your
+							audience where ads are shown.
+							<br />
+							<br /> Since advertisers target specific regions based on factors
+							like purchasing power and market demand, the CPM and RPM values
+							differ from one country to another.
+							<br />
+							<br /> By selecting a country, you can see the estimated ad
+							revenue metrics for that specific market, which helps tailor your
+							content strategy to the audience you primarily serve.
+						</p>
+
+						<h6 className="pt-10 pb-5 font-bold  text-3xl">Disclaimer</h6>
+					</div>
+				</section>
+
+				<section className="flex flex-col max-w-[750px] h-full">
+					<PsudueCard color="primary">
+						<p className="text-left">
+							Important Notice: These are the ESTIMATED YouTube monetization
+							earnings.
+						</p>
+					</PsudueCard>{" "}
+					<p className="opacity-60 font-semibold text-[15px] leading-[27px] mt-5">
+						RPM data used in this calculator was compiled from publicly
+						available sources and industry estimates. It is intended for
+						informational purposes only and does not guarantee earnings, as
+						actual revenue can vary widely and cannot be determined with
+						absolute accuracy.
+						<br />
+						<br /> TunePocket makes no warranties or guarantees as to how much
+						you can earn on YouTube and disclaims any liability related to using
+						these calculators. By using our free calculators you explicitly
+						agree to these terms.
 					</p>
-					<p>
-						Use our free YouTube revenue calculators to estimate (*) how much
-						YouTube pays.
+					<h6 className="pt-5 pb-2.5 font-bold  text-md">
+						What factors may affect your actual YouTube earnings?
+					</h6>
+					<p className="opacity-60 font-semibold text-[15px] leading-[27px] mt-5">
+						There are many factor that may directly or indirectly affect how
+						much you can actually earn by monetizing your channel.
+						<br />
+						<br /> The number of views and the size of your following is the
+						biggest factor. The more people watch your videos (and the ads
+						included with your videos), the higher is your earning potential.
+						<br />
+						<br /> Your niche is another big factor. Brand friendly videos (as
+						opposed to controversial or provocative), tend to appeal to more
+						advertisers, hence fetching higher ad bids.
+						<br />
+						<br /> Note that certain topics are not eligible for advertisement
+						at all. See{" "}
+						<span className="text-orange-600 text-[17px] hover:text-black cursor-pointer" >
+							<a href="https://support.google.com/adsense/answer/48182">
+							AdSense policy
+
+							</a>
+						</span>{" "}
+						for more information on what videos are allowed into YouTube
+						partnership program.
+						<br />
+						<br /> Some other factors that may affect the actual payout include
+						the age and the location of your audience, the actual click through
+						rate, ad blockers, the percentage of invalid ad clicks, and so on.
 					</p>
-					<p>Projected Revenue By Daily Views Calculator</p>
-					<p>
-						Use this to estimate total earnings based on how many videos you’ve
-						uploaded. It’s great for content planning, helping you understand
-						how volume affects potential revenue.
-					</p>{" "}
-					Estimated Revenue Of A Video Calculator Perfect for analyzing a single
-					video’s performance. Paste a link to get an earnings estimate based on
-					that video’s actual views, niche, and audience location. Estimated
-					Revenue For A Channel Calculator Ideal for getting a full-picture
-					revenue estimate for any channel. Just drop in the channel link to see
-					how much it’s likely earning overall, which is useful for benchmarking
-					or competitive research. Related: How YouTube ads work Learn more
-					about making money on YouTube.
 				</section>
 			</main>
 		</>
