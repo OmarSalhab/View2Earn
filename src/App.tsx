@@ -203,15 +203,25 @@ function App() {
 						any existing video or channel.
 					</p>
 					<div className="flex items-center justify-center text-opacity-70 pt-11 text-gray-950 font-bold gap-2">
-						<span className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer">
+						<span 
+						onClick={()=>{
+							document.getElementById("calc-views")?.scrollIntoView({behavior:'smooth'})
+						}}
+						className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer">
 							Claculate by views
 						</span>
 						|
-						<span className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer">
+						<span
+						onClick={()=>{document.getElementById("calc-video")?.scrollIntoView({behavior:'smooth'})}}
+						className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer">
 							By video URL
 						</span>
 						|
-						<span className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer">
+						<span 
+						onClick={()=>{
+							document.getElementById("calc-channel")?.scrollIntoView({behavior:'smooth'})
+						}}
+						className="font-medium sm:text-xl text-orange-500 hover:text-black cursor-pointer">
 							By channel URL
 						</span>
 					</div>
@@ -225,7 +235,11 @@ function App() {
 						number of views. Move the slider below left or right to set the
 						number of views. Some popular numbers are 1000, 100,000 and 1
 						million views. See{" "}
-						<span className=" text-orange-500 text-opacity-70">
+						<span 
+						onClick={()=>{
+							document.getElementById("how-calc-work")?.scrollIntoView({behavior:'smooth'})
+						}}
+						className="sm:text-[15px] text-orange-500 hover:text-black cursor-pointer">
 							how we calculate the earnings.
 						</span>
 					</p>
@@ -244,7 +258,7 @@ function App() {
 					</PsudueCard>
 
 					{/* Calculate by Views */}
-					<div className="flex flex-col gap-4 w-full bg-[#faf7f7b9] items-center justify-center">
+					<div id="calc-views" className="flex flex-col gap-4 w-full bg-[#faf7f7b9] items-center justify-center">
 						<label className="mt-20 text-xl font-medium">
 							Target Country (
 							<span className="text-red-500 font-semibold">
@@ -370,7 +384,7 @@ function App() {
 				{/* ************************************** VIEWS CALCULATER ************************************** */}
 
 				{/* VIDEOID CALCULATER */}
-				<section className="flex flex-col mt-7 max-w-[750px] h-full">
+				<section id="calc-video" className="flex flex-col mt-7 max-w-[750px] h-full">
 					<h2 className="text-3xl text-center font-semibold pt-12 ">
 						Estimate YouTube revenue of existing video
 					</h2>
@@ -488,7 +502,7 @@ function App() {
 					className="-mt-8 md:max-w-[750px] h-full"
 				/>
 				{/* CHANNEL CALCULATER */}
-				<section className="flex flex-col mt-7 max-w-[750px] h-full">
+				<section id="calc-channel" className="flex flex-col mt-7 max-w-[750px] h-full">
 					<h2 className="text-3xl text-center font-semibold pt-12 ">
 						Estimate YouTube Revenue for a Channel
 					</h2>
@@ -644,8 +658,9 @@ function App() {
 							overall, which is useful for benchmarking or competitive research.
 							<br /> <br />
 							Related:{" "}
-							<span className="text-orange-600 text-[17px] hover:text-black cursor-pointer">
-								How YouTube ads work
+							<span
+							 className="text-orange-600 text-[17px] hover:text-black cursor-pointer">
+								<a href="https://support.google.com/youtube/answer/7438625?hl=en#:~:text=Ads%20are%20served%20through%20the,the%20content%20is%20advertiser%2Dfriendly.">How YouTube ads work</a>
 							</span>
 							<br />
 							<br />
@@ -659,7 +674,7 @@ function App() {
 					</div>
 				</section>
 
-				<section className="flex flex-col max-w-[750px] h-full">
+				<section id="how-calc-work" className="flex flex-col max-w-[750px] h-full">
 					<h4 className="text-3xl font-semibold">
 						How we calculate the earnings
 					</h4>
@@ -758,11 +773,15 @@ function App() {
 							content strategy to the audience you primarily serve.
 						</p>
 
-						<h6 className="pt-10 pb-5 font-bold  text-3xl">Disclaimer</h6>
 					</div>
 				</section>
 
+				<img
+					src="public\Images\reflective-youtube-logo-money.avif"
+					className="mt-10 md:max-w-[750px] h-full"
+				/>
 				<section className="flex flex-col max-w-[750px] h-full">
+						<h6 className="pt-10 pb-5 font-bold  text-3xl">Disclaimer</h6>
 					<PsudueCard color="primary">
 						<p className="text-left">
 							Important Notice: These are the ESTIMATED YouTube monetization
