@@ -5,6 +5,8 @@ import PsudueCard from "./components/PsudueCard";
 import Aside from "./components/Aside";
 import { fetchByVideo, fetchByChannel } from "./utils/apiCall";
 import { formatCurrency, formatViews } from "./utils/formatCurrency";
+import Rating from "./components/Rating";
+import Footer from "./components/Footer";
 
 function App() {
 	const [views, setViews] = useState(17000);
@@ -100,19 +102,7 @@ function App() {
 		],
 	};
 
-	// const nicheRPM = {
-	// 	"Finance & Investing": [5.0, 12.25], // Realistic range for high-value niches
-	// 	"Make Money Online": [4.5, 13.52], // Slightly lower min (avoid overestimation)
-	// 	"Digital Marketing": [4.0, 12.52], // Competitive but not always 12.52x
-	// 	"Technology & Gadgets": [3.5, 10.0], // Broad niche, lower min
-	// 	"Business & Entrepreneurship": [6.0, 18.0], // High max for premium content
-	// 	"Health & Fitness": [2.5, 10.0], // Wide variability (supplements vs. general)
-	// 	Education: [2.0, 9.89], // Free tutorials vs. paid courses
-	// 	Entertainment: [2.0, 3.5],
-	// 	"Real Estate": [3.0, 8.0], // Local markets vary
-	// 	"Travel & Lifestyle": [1.5, 9.0], // Luxury travel vs. budget guides
-	// 	Gaming: [0.5, 1.4], // Low RPM unless sponsored
-	// };
+	
 	const nicheMultipliers: any = {
 		"Finance & Investing": [1.0, 2.75], // Example: 2.75x for top-tier countries
 		"Make Money Online": [0.9, 2.5],
@@ -1079,7 +1069,11 @@ function App() {
 						rate, ad blockers, the percentage of invalid ad clicks, and so on.
 					</p>
 				</section>
+				<section className="max-w-[750px] w-full h-full mb-12">
+					<Rating/>
+				</section>
 			</main>
+				<Footer />
 		</>
 	);
 }
