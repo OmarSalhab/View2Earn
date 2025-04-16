@@ -42,11 +42,12 @@ export const fetchByVideo = async (url: any) => {
 				},
 			}
 		).then((res) => res.json());
-console.log(res);
+		console.log(res);
 
 		return {
 			viewCount: res.items[0].statistics.viewCount,
 			thumbnail: res.items[0].snippet.thumbnails.high.url,
+			title: res.items[0].snippet.title ?? "https://www.gpshealthonline.com/static/images/no-banner.jpg",
 		};
 	} catch (err) {
 		console.error("Error fetching URL views:", err);
@@ -74,18 +75,18 @@ export const fetchByChannel = async (url: any) => {
 		).then((res) => res.json());
 		if (!res.items[0]) return new Error("Invalid channel URL");
 		console.log(res.items[0].snippet.thumbnails?.high?.url);
-		const image = res.items[0].snippet.thumbnails?.high?.url ??
-				"https://cdn.vectorstock.com/i/500p/21/98/male-profile-picture-vector-1862198.jpg"
-				const banner = res.items[0].brandingSettings?.image?.bannerExternalUrl ??
-				"https://www.gpshealthonline.com/static/images/no-banner.jpg"
+		const image =
+			res.items[0].snippet.thumbnails?.high?.url ??
+			"https://cdn.vectorstock.com/i/500p/21/98/male-profile-picture-vector-1862198.jpg";
+		const banner =
+			res.items[0].brandingSettings?.image?.bannerExternalUrl ??
+			"https://www.gpshealthonline.com/static/images/no-banner.jpg";
 		return {
 			viewCount: res.items[0].statistics.viewCount,
 			title: res.items[0].snippet.title,
-			country: res.items[0].snippet.country ?? 'N/A',
-			image: image
-				,
-			banner: banner
-				,
+			country: res.items[0].snippet.country ?? "N/A",
+			image: image,
+			banner: banner,
 		};
 	} catch (err) {
 		console.error("Error fetching URL views:", err);

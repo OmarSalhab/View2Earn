@@ -17,16 +17,18 @@ function App() {
 	});
 	const [error, setError] = useState<boolean>(false);
 	const [niche, setNiche] = useState<keyof typeof nicheRPM | undefined>();
-	const [earnings, setEarnings] = useState<number[][]>([
-		[0, 0],
-		[0, 0],
-		[0, 0],
+	const [earnings, setEarnings] = useState<string[][]>([
+		["0", "0"],
+		["0", "0"],
+		["0", "0"],
 	]);
 	const [videoViews, setVideoViews] = useState<number>({
 		viewCount: 0,
 		thumbnail: "",
+		title: "",
 	});
-	const [videoEarnings, setVideoEarnings] = useState<number[]>([0, 0]);
+	const [videoEarnings, setVideoEarnings] = useState<string[]>(['0', '0']);
+	const [channelEarningsMoney, setChannelEarningsMoney] = useState<string[]>(['0', '0']);
 	const [channelEarnings, setChannelEarnings] = useState<object>({
 		viewCount: 0,
 		title: "",
@@ -66,42 +68,105 @@ function App() {
 		Japan: [1.0, 2.5],
 		Brazil: [0.4, 1.0],
 	};
+	const countryTiers = {
+		top: [
+			"United States",
+			"Norway",
+			"Australia",
+			"Switzerland",
+			"United Kingdom",
+			"Canada",
+			"Germany",
+			"France",
+			"Japan"
+		],
+		arab: [
+			"United Arab Emirates",
+			"Saudi Arabia",
+			"Jordan",
+			"Qatar",
+			"Kuwait",
+			"Bahrain",
+			"Oman",
+			"Iraq",
+			"Lebanon",
+			"Palestine",
+			"Syria",
+			"Yemen",
+			"Egypt",
+			"India",
+			"Brazil",
 
-	const nicheRPM = {
-		"Finance & Investing": [5.0, 12.25], // Realistic range for high-value niches
-		"Make Money Online": [4.5, 13.52], // Slightly lower min (avoid overestimation)
-		"Digital Marketing": [4.0, 12.52], // Competitive but not always 12.52x
-		"Technology & Gadgets": [3.5, 10.0], // Broad niche, lower min
-		"Business & Entrepreneurship": [6.0, 18.0], // High max for premium content
-		"Health & Fitness": [2.5, 10.0], // Wide variability (supplements vs. general)
-		Education: [2.0, 9.89], // Free tutorials vs. paid courses
-		Entertainment: [2.0, 3.5],
-		"Real Estate": [3.0, 8.0], // Local markets vary
-		"Travel & Lifestyle": [1.5, 9.0], // Luxury travel vs. budget guides
-		Gaming: [0.5, 1.4], // Low RPM unless sponsored
+		],
+	};
+
+	// const nicheRPM = {
+	// 	"Finance & Investing": [5.0, 12.25], // Realistic range for high-value niches
+	// 	"Make Money Online": [4.5, 13.52], // Slightly lower min (avoid overestimation)
+	// 	"Digital Marketing": [4.0, 12.52], // Competitive but not always 12.52x
+	// 	"Technology & Gadgets": [3.5, 10.0], // Broad niche, lower min
+	// 	"Business & Entrepreneurship": [6.0, 18.0], // High max for premium content
+	// 	"Health & Fitness": [2.5, 10.0], // Wide variability (supplements vs. general)
+	// 	Education: [2.0, 9.89], // Free tutorials vs. paid courses
+	// 	Entertainment: [2.0, 3.5],
+	// 	"Real Estate": [3.0, 8.0], // Local markets vary
+	// 	"Travel & Lifestyle": [1.5, 9.0], // Luxury travel vs. budget guides
+	// 	Gaming: [0.5, 1.4], // Low RPM unless sponsored
+	// };
+	const nicheMultipliers: any = {
+		"Finance & Investing": [1.0, 2.75], // Example: 2.75x for top-tier countries
+		"Make Money Online": [0.9, 2.5],
+		"Digital Marketing": [0.8, 2.0],
+		"Technology & Gadgets": [0.7, 1.8],
+		"Business & Entrepreneurship": [1.2, 3.0],
+		"Health & Fitness": [0.6, 1.5],
+		Education: [0.5, 1.3],
+		Entertainment: [0.4, 1.0],
+		"Real Estate": [0.7, 1.9],
+		"Travel & Lifestyle": [0.5, 1.7],
+		Gaming: [0.3, 0.8],
 	};
 	useEffect(() => {
 		if (country && niche) {
-			// Calculate MIN and MAX possible earnings:
-			const dailyMinRPM = countriesRPM[country][0] * nicheRPM[niche][0]; // 0.25 * 5.0 = 1.25
-			const dailyMaxRPM = countriesRPM[country][1] * nicheRPM[niche][1]; // 0.7 * 12.25 = 8.575
+			// Calculate MIN and MAX RPM based on country tier and niche
+			const [countryMin, countryMax] = countriesRPM[country];
+			const [nicheMinMultiplier, nicheMaxMultiplier] = nicheMultipliers[niche];
 
-			// Earnings for 100K views:
-			const dailyMinEarnings = (((dailyMinRPM * views) / 1000) * 1.3).toFixed(
+			// Adjust multipliers based on country tier
+			let tierAdjustment = 1.0;
+			if (countryTiers.top.includes(country)) {
+				tierAdjustment = 1.0; // Full multiplier for top-tier
+			} else if (countryTiers.arab.includes(country)) {
+				tierAdjustment = 0.7; // Arab countries at 70% of the multiplier
+			} else {
+				tierAdjustment = 0.5; // Other countries at 50%
+			}
+
+			const adjustedNicheMin = nicheMinMultiplier * tierAdjustment;
+			const adjustedNicheMax = nicheMaxMultiplier * tierAdjustment;
+
+			// Calculate final RPM range
+			const dailyMinRPM = countryMin * adjustedNicheMin;
+			const dailyMaxRPM = countryMax * adjustedNicheMax;
+
+			// Earnings for 100K views with platform fees
+			const dailyMinEarnings = (((dailyMinRPM * views) / 1000) * 0.7).toFixed(
 				2
-			); // (1.25 * 100000)/1000 = $125
-			const dailyMaxEarnings = (((dailyMaxRPM * views) / 1000) * 0.65).toFixed(
+			); // 30% fee
+			const dailyMaxEarnings = (((dailyMaxRPM * views) / 1000) * 0.7).toFixed(
 				2
 			);
 
 			const dailyEarning = [dailyMinEarnings, dailyMaxEarnings];
+
+			// Monthly/Yearly projections
 			const monthlyEarning = [
-				(dailyMinEarnings * 30).toFixed(1),
-				(dailyMaxEarnings * 30).toFixed(1),
+				(parseFloat(dailyMinEarnings) * 30).toFixed(1),
+				(parseFloat(dailyMaxEarnings) * 30).toFixed(1),
 			];
 			const yearlyEarning = [
-				Math.round(dailyMinEarnings * 365),
-				Math.round(dailyMaxEarnings * 365),
+				Math.round(parseFloat(dailyMinEarnings) * 365).toString(),
+				Math.round(parseFloat(dailyMaxEarnings) * 365).toString(),
 			];
 			setEarnings([dailyEarning, monthlyEarning, yearlyEarning]);
 		}
@@ -109,25 +174,82 @@ function App() {
 
 	useEffect(() => {
 		if (country && niche) {
-			// Calculate MIN and MAX possible earnings:
-			const dailyMinRPM = countriesRPM[country][0] * nicheRPM[niche][0]; // 0.25 * 5.0 = 1.25
-			const dailyMaxRPM = countriesRPM[country][1] * nicheRPM[niche][1]; // 0.7 * 12.25 = 8.575
 
-			// Earnings for 100K views:
-			const dailyMinEarnings = (
-				((dailyMinRPM * videoViews.viewCount) / 1000) *
-				1.1
-			).toFixed(2); // (1.25 * 100000)/1000 = $125
-			const dailyMaxEarnings = (
-				((dailyMaxRPM * videoViews.viewCount) / 1000) *
-				0.55
-			).toFixed(2);
+			const [countryMin, countryMax] = countriesRPM[country];
+			const [nicheMinMultiplier, nicheMaxMultiplier] = nicheMultipliers[niche];
+
+			// Adjust multipliers based on country tier
+			let tierAdjustment = 1.0;
+			if (countryTiers.top.includes(country)) {
+				tierAdjustment = 1.0; // Full multiplier for top-tier
+			} else if (countryTiers.arab.includes(country)) {
+				tierAdjustment = 0.7; // Arab countries at 70% of the multiplier
+			} else {
+				tierAdjustment = 0.5; // Other countries at 50%
+			}
+
+			const adjustedNicheMin = nicheMinMultiplier * tierAdjustment;
+			const adjustedNicheMax = nicheMaxMultiplier * tierAdjustment;
+
+			// Calculate final RPM range
+			const dailyMinRPM = countryMin * adjustedNicheMin;
+			const dailyMaxRPM = countryMax * adjustedNicheMax;
+
+			// Earnings for 100K views with platform fees
+			const dailyMinEarnings = (((dailyMinRPM * videoViews.viewCount) / 1000) * 0.7).toFixed(
+				2
+			); // 30% fee
+			const dailyMaxEarnings = (((dailyMaxRPM * videoViews.viewCount) / 1000) * 0.7).toFixed(
+				2
+			);
 
 			const dailyEarning = [dailyMinEarnings, dailyMaxEarnings];
+
+			
 
 			setVideoEarnings(dailyEarning);
 		}
 	}, [videoViews, country, niche]);
+
+	
+	useEffect(() => {
+		if (country && niche) {
+
+			const [countryMin, countryMax] = countriesRPM[country];
+			const [nicheMinMultiplier, nicheMaxMultiplier] = nicheMultipliers[niche];
+
+			// Adjust multipliers based on country tier
+			let tierAdjustment = 1.0;
+			if (countryTiers.top.includes(country)) {
+				tierAdjustment = 1.0; // Full multiplier for top-tier
+			} else if (countryTiers.arab.includes(country)) {
+				tierAdjustment = 0.7; // Arab countries at 70% of the multiplier
+			} else {
+				tierAdjustment = 0.5; // Other countries at 50%
+			}
+
+			const adjustedNicheMin = nicheMinMultiplier * tierAdjustment;
+			const adjustedNicheMax = nicheMaxMultiplier * tierAdjustment;
+
+			// Calculate final RPM range
+			const totalMinRPM = countryMin * adjustedNicheMin;
+			const totalMaxRPM = countryMax * adjustedNicheMax;
+
+			// Earnings for 100K views with platform fees
+			const totalMinEarnings = (((totalMinRPM * channelEarnings.viewCount) / 1000) * 0.7).toFixed(
+				2
+			); // 30% fee
+			const totalMaxEarnings = (((totalMaxRPM * channelEarnings.viewCount) / 1000) * 0.7).toFixed(
+				2
+			);
+
+			const totalEarnings = [totalMinEarnings, totalMaxEarnings];
+
+			
+
+			setChannelEarningsMoney(totalEarnings);
+		}
+	}, [channelEarnings, country, niche]);
 
 	const handleCountry = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		if (e.target.value !== "--Select a Country--") setCountry(e.target.value);
@@ -200,7 +322,7 @@ function App() {
 		try {
 			const channelData = await fetchByChannel(url.path);
 			console.log(channelData);
-			
+
 			if (channelData) {
 				setChannelEarnings(channelData);
 			}
@@ -317,13 +439,13 @@ function App() {
 							<option value="--Select a Country--" disabled>
 								--Select a Country--
 							</option>
-							{Object.keys(countriesRPM).map((country) => {
-								return (
+							{Object.values(countryTiers)
+								.flat() // Flatten the arrays into a single array
+								.map((country) => (
 									<option key={country} value={country}>
 										{country}
 									</option>
-								);
-							})}
+								))}
 							;
 						</select>
 
@@ -338,7 +460,7 @@ function App() {
 							<option value="--Select a Industry / Niche--" disabled>
 								--Select a Industry / Niche--
 							</option>
-							{Object.keys(nicheRPM).map((niche) => {
+							{Object.keys(nicheMultipliers).map((niche) => {
 								return (
 									<option key={niche} value={niche}>
 										{niche}
@@ -468,13 +590,13 @@ function App() {
 							<option value="--Select a Country--" disabled>
 								--Select a Country--
 							</option>
-							{Object.keys(countriesRPM).map((country) => {
-								return (
+							{Object.values(countryTiers)
+								.flat() // Flatten the arrays into a single array
+								.map((country) => (
 									<option key={country} value={country}>
 										{country}
 									</option>
-								);
-							})}
+								))}
 							;
 						</select>
 
@@ -489,7 +611,7 @@ function App() {
 							<option value="--Select a Industry / Niche--" disabled>
 								--Select a Industry / Niche--
 							</option>
-							{Object.keys(nicheRPM).map((niche) => {
+							{Object.keys(nicheMultipliers).map((niche) => {
 								return (
 									<option key={niche} value={niche}>
 										{niche}
@@ -524,12 +646,17 @@ function App() {
 								search
 							</button>
 						</div>
-						{videoViews.thumbnail && (
-							<img
-								src={videoViews?.thumbnail}
-								alt="Video Thumbnail"
-								className="w-[85%] h-56 mt-5 rounded-md"
-							/>
+						{(videoViews.thumbnail || videoViews.title) && (
+							<>
+								<img
+									src={videoViews?.thumbnail}
+									alt="Video Thumbnail"
+									className="w-[85%] h-56 mt-5 rounded-md"
+								/>
+								<label className="mt-5 text-xl font-semibold text-center">
+									{videoViews?.title}
+								</label>
+							</>
 						)}
 						<label className="mt-20 text-lg font-semibold">
 							Number of Total Video Views
@@ -558,13 +685,13 @@ function App() {
 					id="calc-channel"
 					className="flex flex-col mt-7 max-w-[750px] h-full"
 				>
-					<h2 className="text-3xl text-center font-semibold pt-12 ">
+					<h2 className="text-3xl text-center font-semibold pt-12">
 						Estimate YouTube Revenue for a Channel
 					</h2>
-					<p className="text-[15px] text-center pt-12 leading-7 text-opacity-70 font-bold text-gray-950 w-full">
+					<p className="text-[14px] text-center pt-12 leading-7 text-opacity-70 font-bold text-gray-950 w-full">
 						This calculator estimates the total money earned by a specific
 						YouTube channel. Enter a valid channel URL to estimate how much that
-						cahnnel earned (or could have earned) from YouTube monetization.
+						channel earned (or could have earned) from YouTube monetization.
 					</p>
 					<PsudueCard color="primary">
 						<p>
@@ -575,11 +702,11 @@ function App() {
 					</PsudueCard>
 					<PsudueCard color="error">
 						<p className="font-extrabold text-black">
-							See more monetized countries - log in to your
+							See more monetized countries - log in to your{" "}
 							<span className="text-orange-500">TunePocket Account</span>
 						</p>
 					</PsudueCard>
-					<div className="flex flex-col gap-4 w-full bg-[#faf7f7b9] items-center justify-center mb-20">
+					<div className="flex flex-col gap-4 w-full bg-[#faf7f7b9] items-center justify-center mb-10 pb-10">
 						<label className="mt-20 text-xl font-medium">
 							Target Country (
 							<span className="text-red-500 font-semibold">
@@ -596,14 +723,13 @@ function App() {
 							<option value="--Select a Country--" disabled>
 								--Select a Country--
 							</option>
-							{Object.keys(countriesRPM).map((country) => {
-								return (
+							{Object.values(countryTiers)
+								.flat() // Flatten the arrays into a single array
+								.map((country) => (
 									<option key={country} value={country}>
 										{country}
 									</option>
-								);
-							})}
-							;
+								))}
 						</select>
 
 						<label className="mt-20 text-xl font-medium">
@@ -617,18 +743,16 @@ function App() {
 							<option value="--Select a Industry / Niche--" disabled>
 								--Select a Industry / Niche--
 							</option>
-							{Object.keys(nicheRPM).map((niche) => {
-								return (
-									<option key={niche} value={niche}>
-										{niche}
-									</option>
-								);
-							})}
+							{Object.keys(nicheMultipliers).map((niche) => (
+								<option key={niche} value={niche}>
+									{niche}
+								</option>
+							))}
 						</select>
 						<label className="mt-20 text-lg font-semibold">
 							Enter YouTube Channel URL
 						</label>
-						<div className="flex w-full justify-center ">
+						<div className="flex w-full justify-center">
 							<input
 								disabled={country && niche ? false : true}
 								type="text"
@@ -640,14 +764,14 @@ function App() {
 									error &&
 									url.path &&
 									"border-b-red-500 border-t-red-500 border-l-red-500 border-r-red-500 border-[3px] delay-200 scale-105 transition-all"
-								} w-[70%] h-8  border-2 text-left p-2 focus:outline-none `}
-								placeholder="eg., https://www.youtube.com/watch?v=sETzYOUjGzQ"
+								} w-[70%] h-8 border-2 text-left p-2 focus:outline-none`}
+								placeholder="eg., https://www.youtube.com/@username"
 								onChange={handleUrl}
 							/>
 							<button
 								onClick={handleChannelSubmit}
 								disabled={country && niche ? false : true}
-								className="h-8  border-2  text-center focus:outline-none bg-zinc-300 w-24"
+								className="h-8 border-2 text-center focus:outline-none bg-zinc-300 w-24"
 							>
 								search
 							</button>
@@ -657,14 +781,12 @@ function App() {
 							channelEarnings.title) && (
 							<>
 								<div className="relative w-[85%] h-48 mt-10">
-									{/* Banner Image */}
 									<img
 										src={channelEarnings?.banner}
 										alt="Channel Banner"
 										className="w-full h-full object-cover rounded-md"
 									/>
 
-									{/* Profile Image */}
 									<img
 										src={channelEarnings?.image}
 										alt="Channel Profile"
@@ -688,10 +810,55 @@ function App() {
 								Estimated Total Earnings
 							</label>
 							<div className="text-center sm:text-3xl font-bold text-orange-500 border-2 border-red-500  rounded-md border-dashed flex justify-center items-center h-48 w-[90%]">
-								{formatCurrency(videoEarnings[0])} ~{" "}
-								{formatCurrency(videoEarnings[1])}
+								{formatCurrency(channelEarningsMoney[0])} ~{" "}
+								{formatCurrency(channelEarningsMoney[1])}
 							</div>
 						</div>
+					</div>
+					<div className="text-md mb-12">
+						<h6 className=" pb-6 font-bold text-lg leading-4">
+							Why Can’t I See Stats for Some Channels?
+						</h6>
+						<p className="opacity-60 font-semibold text-[15px] leading-[27px]">
+							Some YouTube channels restrict access to their public statistics.
+							If our service can’t fetch data for a channel, here’s why:
+						</p>
+						<ul className="list-disc pl-5 opacity-60 font-semibold text-[15px] leading-[27px]">
+							<li>The channel has set their stats to "private".</li>
+							<li>
+								YouTube allows creators to hide their subscriber counts, view
+								counts, or other details.
+							</li>
+							<li>
+								Example: If you see{" "}
+								<span className="font-bold">"hiddenSubscriberCount: true"</span>{" "}
+								in our results, the creator has chosen privacy.
+							</li>
+							<li>The channel doesn’t exist or was deleted.</li>
+							<li>
+								If you typed <span className="font-bold">@username</span> and
+								got no results, the handle might be misspelled or inactive.
+							</li>
+							<li>YouTube’s API limits real-time updates.</li>
+							<li>
+								Subscriber/video counts may lag behind by a few hours (we don’t
+								control this).
+							</li>
+						</ul>
+						<h6 className="pt-6 pb-6 font-bold text-lg leading-4">
+							What You Can Do
+						</h6>
+						<ul className="list-disc pl-5 opacity-60 font-semibold text-[15px] leading-[27px]">
+							<li>
+								✔ Double-check the channel’s URL (try visiting it directly).
+							</li>
+							<li>✔ Use the channel ID (more reliable than usernames).</li>
+							<li>✔ Contact us if you think it’s a technical issue!</li>
+						</ul>
+						<p className="opacity-60 font-semibold text-[15px] leading-[27px] mt-5">
+							<span className="font-bold">Note:</span> We respect creators’
+							privacy settings and can’t bypass YouTube’s restrictions.
+						</p>
 					</div>
 				</section>
 				{/* ************************************** CHANNEL CALCULATER ************************************** */}
