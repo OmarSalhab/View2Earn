@@ -8,7 +8,7 @@ const Aside = () => {
 						<div className="rounded-lg ">
 							<img
 								className="rounded-lg w-full h-full"
-								src="public/Images/facebook-icon-white-logo.svg"
+								src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Facebook_logo_%28square%29.png/600px-Facebook_logo_%28square%29.png"
 								alt="Facebook Icon"
 							/>
 						</div>

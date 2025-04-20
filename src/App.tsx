@@ -10,6 +10,8 @@ import Footer from "./components/Footer";
 
 function App() {
 	const [views, setViews] = useState(17000);
+	const [videoLoading,setVideoLoading]= useState(false)
+	const [channelLoading,setChannelLoading]= useState(false)
 	const [country, setCountry] = useState<
 		keyof typeof countriesRPM | undefined
 	>();
@@ -333,6 +335,7 @@ function App() {
 
 		if (validateUrl()) {
 			try {
+				setVideoLoading(true)
 				const getVideoViews = async () => {
 					const res = await fetchByVideo(url.path);
 
@@ -343,6 +346,8 @@ function App() {
 				getVideoViews();
 			} catch (err) {
 				console.error("Error fetching video data:", err);
+			}finally{
+				setVideoLoading(false)
 			}
 		}
 	};
@@ -350,8 +355,9 @@ function App() {
 	const handleChannelSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		try {
+			setChannelLoading(true)
 			const channelData = await fetchByChannel(url.path);
-			console.log(channelData);
+			
 
 			if (channelData && !(channelData instanceof Error)) {
 				setChannelEarnings({
@@ -365,6 +371,8 @@ function App() {
 		} catch (err) {
 			console.error("Error fetching channel data:", err);
 			return [];
+		}finally{
+			setChannelLoading(false)
 		}
 	};
 	return (
@@ -697,6 +705,7 @@ function App() {
 								</label>
 							</>
 						)}
+						{videoLoading &&  <div className="w-full text-xl font-semibold text-center">loading..</div>}
 						<label className="mt-20 text-lg font-semibold">
 							Number of Total Video Views
 						</label>
@@ -838,6 +847,7 @@ function App() {
 								</label>
 							</>
 						)}
+						{channelLoading &&  <div className="w-full text-xl font-semibold text-center">loading..</div>}
 
 						<label className="mt-20 text-lg font-semibold">
 							Number of Total Channel Views
@@ -1066,7 +1076,7 @@ function App() {
 				</section>
 
 				<img
-					src="public\Images\reflective-youtube-logo-money.avif"
+					src="public\Images\reflective-youtube-logo-money.webp"
 					className="mt-10 md:max-w-[750px] h-full"
 				/>
 				<section className="flex flex-col max-w-[750px] h-full">
