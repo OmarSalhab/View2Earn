@@ -381,8 +381,8 @@ function App() {
 					<p className="text-[14px]  text-center pt-12 leading-7 text-opacity-70 font-bold text-gray-950 w-full">
 						This calculator shows the range of how much money YouTube pays per
 						number of views. Move the slider below left or right to set the
-						number of views. Some popular numbers are 1000, 100,000 and 1
-						million views. See{" "}
+						number of views. Some popular numbers are 1000, 10,000 and 1 hunderd
+						thousend views. See{" "}
 						<span
 							onClick={() => {
 								document
@@ -536,7 +536,10 @@ function App() {
 					</div>
 				</section>
 				{/* ************************************** VIEWS CALCULATER ************************************** */}
-
+				<img
+					src="https://www.tunepocket.com/wp-main/uploads/Make-money-on-YouTube-nursery-rhymes-videos.jpg"
+					className="mt-8 md:max-w-[750px] h-full"
+				/>
 				{/* VIDEOID CALCULATER */}
 				<section
 					id="calc-video"
@@ -670,6 +673,7 @@ function App() {
 					src="public\Images\make-money-on-youtube.webp"
 					className="-mt-8 md:max-w-[750px] h-full"
 				/>
+
 				{/* CHANNEL CALCULATER */}
 				<section
 					id="calc-channel"

@@ -18,18 +18,144 @@ const Rating = () => {
 	useEffect(() => {
 		const fetchComments = async () => {
 			try {
-				const feedbacks = await supabase
+				const { data, error } = await supabase
 					.from("comments")
 					.select("*")
 					.order("created_at", { ascending: false });
-				if (feedbacks.error) throw new Error(`${feedbacks.error}`);
-				setComments(feedbacks.data);
+				if (error) throw new Error(`${error}`);
+				setComments(data);
 			} catch (err) {
 				console.error(err);
 			}
 		};
 		fetchComments();
 	}, []);
+
+	const groupComments = (comments: any[]) => {
+		const commentMap: { [key: string]: any } = {};
+
+		// Create a map of comments by their ID
+		comments.forEach((comment) => {
+			commentMap[comment.id] = { ...comment, replies: [] };
+		});
+
+		// Assign replies to their parent comments
+		const rootComments: any[] = [];
+		comments.forEach((comment) => {
+			if (comment.parent_id) {
+				commentMap[comment.parent_id]?.replies.push(commentMap[comment.id]);
+			} else {
+				rootComments.push(commentMap[comment.id]);
+			}
+		});
+		console.log(comments);
+
+		return rootComments;
+	};
+
+	const renderComments = (comments: any[]) => {
+		return comments.map((mapedComment) => (
+			<div key={mapedComment.id} className="w-full text-left flex flex-col">
+				<Comment
+					time={new Date(mapedComment.created_at).toLocaleString()}
+					name={mapedComment.name}
+					comment={mapedComment.description}
+				/>
+				<button
+					onClick={() => setReplayTo(mapedComment.id)}
+					className="text-orange-600 text-left mt-3 font-medium"
+				>
+					Reply
+				</button>
+				{replayTo === mapedComment.id && (
+					<div className="w-full text-left flex flex-col">
+						<div className="flex w-full justify-between">
+							<h3 className="sm:text-3xl w-2/3 font-semibold mt-6">
+								Reply To {mapedComment.name}
+							</h3>
+							<button
+								onClick={() => {
+									setReplayTo("");
+									setEmptyFieldsError(false);
+									setEmailError(false);
+									setNameError(false);
+								}}
+								className="text-orange-600 mt-6 pr-3 sm:text-xl w-1/3 text-right"
+							>
+								Cancel Reply
+							</button>
+						</div>
+						<p className="opacity-60 font-semibold text-[9px] sm:text-[15px] mt-5">
+							Your email address will not be published. Required fields are
+							marked *
+						</p>
+						<form className="flex flex-col gap-4 mt-1">
+							<div className="flex flex-col mt-2">
+								<label className="sm:text-xl font-medium opacity-70">
+									Comment *
+								</label>
+								<textarea
+									value={comment.description}
+									onChange={(e) => {
+										setComment({
+											...comment,
+											description: e.target.value,
+										});
+									}}
+									className={`${
+										emptyFieldsError ? "border-red-700" : "border-gray-300"
+									} border h-[300px]`}
+								></textarea>
+							</div>
+							<div className="flex flex-col mt-7">
+								<label className="sm:text-xl font-medium opacity-70">Name *</label>
+								<input
+									value={comment.name}
+									onChange={(e) => {
+										setComment({ ...comment, name: e.target.value });
+									}}
+									type="text"
+									className={`${
+										emptyFieldsError ? "border-red-700" : "border-gray-300"
+									} ${
+										nameError ? "border-red-700" : "border-gray-300"
+									} border  h-12 sm:w-[40%] w-full`}
+								/>
+							</div>
+							<div className="flex flex-col">
+								<label className="sm:text-xl font-medium opacity-70">
+									Email *
+								</label>
+								<input
+									value={comment.email}
+									onChange={(e) => {
+										setComment({ ...comment, email: e.target.value });
+									}}
+									type="email"
+									className={`${
+										emptyFieldsError ? "border-red-700" : "border-gray-300"
+									} ${
+										emailError ? "border-red-700" : "border-gray-300"
+									} border  h-12 sm:w-[40%] w-full`}
+								/>
+							</div>
+							<button
+								onClick={(e) => handleReplay(e, mapedComment.id)}
+								className="sm:w-[30%] w-full bg-[#b43c2c] text-white font-semibold text-lg mt-5 py-3 px-2 rounded-sm hover:bg-orange-600 transition duration-200 ease-in-out"
+							>
+								Post Comment
+							</button>
+						</form>
+						{showToast.visable && <Toast title={showToast.title} />}
+					</div>
+				)}
+				{/* Render replies recursively */}
+				{mapedComment.replies.length > 0 && (
+					<div className="ml-8">{renderComments(mapedComment.replies)}</div>
+				)}
+			</div>
+		));
+	};
 
 	const handleFormValidty = () => {
 		if (!comment.name || !comment.email || !comment.description) {
@@ -44,7 +170,6 @@ const Rating = () => {
 			setTimeout(() => {
 				setShowToast({ title: "", visable: false });
 			}, 1800);
-			// alert("Missing Field/Fields, Please Fill All Fields.");
 			return false;
 		}
 		setEmptyFieldsError(false);
@@ -89,10 +214,13 @@ const Rating = () => {
 		}
 	};
 
-	const insertReplay = async () => {
+	const insertReplay = async (target) => {
 		try {
-			const res = await supabase.from("comments").insert(comment);
+			const res = await supabase
+				.from("comments")
+				.insert({ ...comment, parent_id: parseInt(target) });
 			if (res.error) throw new Error(`${res.error}`);
+			return true;
 		} catch (err) {
 			console.error(err);
 		}
@@ -106,12 +234,12 @@ const Rating = () => {
 			return;
 		}
 		try {
-			const feedbacks = await supabase
+			const { data, error } = await supabase
 				.from("comments")
 				.select("*")
 				.order("created_at", { ascending: false });
-			if (feedbacks.error) throw new Error(`${feedbacks.error}`);
-			setComments(feedbacks.data);
+			if (error) throw new Error(`${error}`);
+			setComments(data);
 			setShowToast({
 				title: "Submitted Succssfully",
 				visable: true,
@@ -124,122 +252,55 @@ const Rating = () => {
 			console.error(err);
 		}
 	};
-	const handleReplay = async (e: any) => {
+	const handleReplay = async (e: any, target: any) => {
 		e.preventDefault();
 		if (!handleFormValidty()) return;
-		if (!insertReplay()) {
+		if (!(await insertReplay(target))) {
 			console.error("There was an Error when adding your feedback");
 			return;
+		}
+		try {
+			const { data, error } = await supabase
+				.from("comments")
+				.select("*")
+				.order("created_at", { ascending: false });
+			if (error) throw new Error(`${error}`);
+			setComments(data);
+			setShowToast({
+				title: "Submitted Succssfully",
+				visable: true,
+			});
+			setTimeout(() => {
+				setShowToast({ title: "", visable: false });
+			}, 1800);
+			setComment({ name: "", email: "", description: "" });
+
+			setReplayTo("");
+			setEmptyFieldsError(false);
+			setEmailError(false);
+			setNameError(false);
+		} catch (err) {
+			console.error(err);
 		}
 	};
 	return (
 		<div className="w-full mt-8 text-left">
-			<h2 className="text-3xl font-semibold mb-5 mt-2">
+			<h2 className="sm:text-3xl font-semibold mb-5 mt-2">
 				{comments.length} Comments
 			</h2>
 			<div className="flex flex-col gap-4">
-				{comments &&
-					comments.map((mapedComment: any) => (
-						<>
-							<Comment
-								key={mapedComment.id}
-								time={new Date(mapedComment.created_at).toLocaleString()} // Format the time
-								name={mapedComment.name}
-								comment={mapedComment.description}
-							/>
-							<button
-								onClick={() => setReplayTo(mapedComment.id)}
-								className="text-orange-600 text-left mt-3 font-medium"
-							>
-								replay
-							</button>
-							{replayTo === mapedComment.id && (
-								<div className="w-full text-left flex flex-col">
-									<div className="flex  w-full justify-between">
-										<h3 className="text-3xl w-2/3 font-semibold mt-6 ">
-											Replay To {mapedComment.name}
-										</h3>
-										<button
-											onClick={() => {
-												setReplayTo("");
-												setEmptyFieldsError(false);
-												setEmailError(false);
-												setNameError(false);
-											}}
-											className=" text-orange-600 mt-6 pr-3 text-xl w-1/3 text-right "
-										>
-											Cancel Replay
-										</button>
-									</div>
-									<p className="opacity-60 font-semibold text-[15px] mt-5">
-										Your email address will not be published. Required fields
-										are marked *
-									</p>
-									<form className="flex flex-col gap-4 mt-1">
-										<div className="flex flex-col mt-2">
-											<label className="text-xl font-medium opacity-70 ">
-												Comment *
-											</label>
-											<textarea
-												value={comment.description}
-												onChange={(e) => {
-													setComment({
-														...comment,
-														description: e.target.value,
-													});
-												}}
-												className="border border-gray-300 h-[300px]"
-											></textarea>
-										</div>
-										<div className="flex flex-col mt-7">
-											<label className="text-xl font-medium opacity-70 ">
-												Name *
-											</label>
-											<input
-												value={comment.name}
-												onChange={(e) => {
-													setComment({ ...comment, name: e.target.value });
-												}}
-												type="text"
-												className="border border-gray-300 h-12 w-[40%]"
-											/>
-										</div>
-										<div className="flex flex-col ">
-											<label className="text-xl font-medium opacity-70 ">
-												Email *
-											</label>
-											<input
-												value={comment.email}
-												onChange={(e) => {
-													setComment({ ...comment, email: e.target.value });
-												}}
-												type="email"
-												className="border border-gray-300 h-12 w-[40%]"
-											/>
-										</div>
-										<button
-											onClick={handleReplay}
-											className="w-[30%] bg-[#b43c2c] text-white font-semibold text-lg mt-5 py-3 px-2 rounded-sm hover:bg-orange-600 transition duration-200 ease-in-out"
-										>
-											Post Comment
-										</button>
-									</form>
-									{showToast.visable && <Toast title={showToast.title} />}
-								</div>
-							)}
-						</>
-					))}
+				{renderComments(groupComments(comments))}
 			</div>
 			{!replayTo && (
 				<div className="w-full mt-8 text-left flex flex-col">
-					<h3 className="text-3xl font-semibold mt-10 ">Post a Comment</h3>
-					<p className="opacity-60 font-semibold text-[15px] mt-5">
+					<h3 className="sm:text-3xl font-semibold mt-10 ">Post a Comment</h3>
+					<p className="opacity-60 font-semibold text-[10px] sm:text-[15px] mt-5">
 						Your email address will not be published. Required fields are marked
 						*
 					</p>
 					<form className="flex flex-col gap-4 mt-1">
 						<div className="flex flex-col mt-2">
-							<label className="text-xl font-medium opacity-70 ">
+							<label className="sm:text-xl font-medium opacity-70 ">
 								Comment *
 							</label>
 							<textarea
@@ -253,7 +314,7 @@ const Rating = () => {
 							></textarea>
 						</div>
 						<div className="flex flex-col mt-7">
-							<label className="text-xl font-medium opacity-70 ">Name *</label>
+							<label className="sm:text-xl font-medium opacity-70 ">Name *</label>
 							<input
 								value={comment.name}
 								onChange={(e) => {
@@ -264,11 +325,11 @@ const Rating = () => {
 									emptyFieldsError ? "border-red-700" : "border-gray-300"
 								} ${
 									nameError ? "border-red-700" : "border-gray-300"
-								} border  h-12 w-[40%]`}
+								} border  h-12 sm:w-[40%] w-full`}
 							/>
 						</div>
 						<div className="flex flex-col ">
-							<label className="text-xl font-medium opacity-70 ">Email *</label>
+							<label className="sm:text-xl font-medium opacity-70 ">Email *</label>
 							<input
 								value={comment.email}
 								onChange={(e) => {
@@ -279,12 +340,12 @@ const Rating = () => {
 									emptyFieldsError ? "border-red-700" : "border-gray-300"
 								} ${
 									emailError ? "border-red-700" : "border-gray-300"
-								} border  h-12 w-[40%]`}
+								} border  h-12 sm:w-[40%] w-full`}
 							/>
 						</div>
 						<button
 							onClick={handleSubmit}
-							className="w-[30%] bg-[#b43c2c] text-white font-semibold text-lg mt-5 py-3 px-2 rounded-sm hover:bg-orange-600 transition duration-200 ease-in-out"
+							className="sm:w-[30%] w-full bg-[#b43c2c] text-white font-semibold text-lg mt-5 py-3 px-2 rounded-sm hover:bg-orange-600 transition duration-200 ease-in-out"
 						>
 							Post Comment
 						</button>
