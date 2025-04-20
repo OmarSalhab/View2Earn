@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Header from "./components/Header";
 import PsudueCard from "./components/PsudueCard";
 import Aside from "./components/Aside";
@@ -53,36 +53,39 @@ function App() {
 	});
 	const sliderRef = useRef<HTMLDivElement>(null);
 
-	const countriesRPM = {
-		// Top-Tier Countries (Highest RPM)
-		"United States": [5.0, 8.0], // Finance in U.S. can hit $22 RPM
-		Norway: [3.0, 5.0],
-		Australia: [3.5, 6.0],
-		Switzerland: [3.0, 5.0],
-		"United Kingdom": [3.0, 5.0],
+	const countriesRPM = useMemo(
+		() => ({
+			// Top-Tier Countries (Highest RPM)
+			"United States": [5.0, 8.0], // Finance in U.S. can hit $22 RPM
+			Norway: [3.0, 5.0],
+			Australia: [3.5, 6.0],
+			Switzerland: [3.0, 5.0],
+			"United Kingdom": [3.0, 5.0],
 
-		// Arab Countries (Ranges Based on Ad Demand)
-		"United Arab Emirates": [1.2, 2.5],
-		"Saudi Arabia": [0.8, 1.5],
-		Qatar: [1.0, 1.8],
-		Kuwait: [0.9, 1.6],
-		Bahrain: [0.7, 1.3],
-		Oman: [0.6, 1.2],
-		Iraq: [0.4, 0.8],
-		Jordan: [0.5, 0.9],
-		Lebanon: [0.4, 0.8],
-		Palestine: [0.3, 0.6],
-		Syria: [0.2, 0.5],
-		Yemen: [0.1, 0.4],
+			// Arab Countries (Ranges Based on Ad Demand)
+			"United Arab Emirates": [1.2, 2.5],
+			"Saudi Arabia": [0.8, 1.5],
+			Qatar: [1.0, 1.8],
+			Kuwait: [0.9, 1.6],
+			Bahrain: [0.7, 1.3],
+			Oman: [0.6, 1.2],
+			Iraq: [0.4, 0.8],
+			Jordan: [0.5, 0.9],
+			Lebanon: [0.4, 0.8],
+			Palestine: [0.3, 0.6],
+			Syria: [0.2, 0.5],
+			Yemen: [0.1, 0.4],
 
-		// Other Notable Countries
-		Canada: [2.5, 4.0],
-		Germany: [2.5, 4.0],
-		France: [1.5, 3.0],
-		India: [0.25, 0.7], // Realistic range (Finance: $0.64–$1.48)
-		Japan: [1.0, 2.5],
-		Brazil: [0.4, 1.0],
-	};
+			// Other Notable Countries
+			Canada: [2.5, 4.0],
+			Germany: [2.5, 4.0],
+			France: [1.5, 3.0],
+			India: [0.25, 0.7], // Realistic range (Finance: $0.64–$1.48)
+			Japan: [1.0, 2.5],
+			Brazil: [0.4, 1.0],
+		}),
+		[]
+	);
 	const countryTiers = {
 		top: [
 			"United States",
@@ -114,19 +117,23 @@ function App() {
 		],
 	};
 
-	const nicheMultipliers: Record<string, [number, number]> = {
-		"Finance & Investing": [1.0, 2.75], // Example: 2.75x for top-tier countries
-		"Make Money Online": [0.9, 2.5],
-		"Digital Marketing": [0.8, 2.0],
-		"Technology & Gadgets": [0.7, 1.8],
-		"Business & Entrepreneurship": [1.2, 3.0],
-		"Health & Fitness": [0.6, 1.5],
-		Education: [0.5, 1.3],
-		Entertainment: [0.4, 1.0],
-		"Real Estate": [0.7, 1.9],
-		"Travel & Lifestyle": [0.5, 1.7],
-		Gaming: [0.3, 0.8],
-	};
+	const nicheMultipliers = useMemo(
+		() =>
+			({
+				"Finance & Investing": [1.0, 2.75], // Example: 2.75x for top-tier countries
+				"Make Money Online": [0.9, 2.5],
+				"Digital Marketing": [0.8, 2.0],
+				"Technology & Gadgets": [0.7, 1.8],
+				"Business & Entrepreneurship": [1.2, 3.0],
+				"Health & Fitness": [0.6, 1.5],
+				Education: [0.5, 1.3],
+				Entertainment: [0.4, 1.0],
+				"Real Estate": [0.7, 1.9],
+				"Travel & Lifestyle": [0.5, 1.7],
+				Gaming: [0.3, 0.8],
+			} as Record<string, [number, number]>),
+		[]
+	);
 	useEffect(() => {
 		if (country && niche) {
 			// Calculate MIN and MAX RPM based on country tier and niche
@@ -171,7 +178,15 @@ function App() {
 			];
 			setEarnings([dailyEarning, monthlyEarning, yearlyEarning]);
 		}
-	}, [views, country, niche]);
+	}, [
+		views,
+		country,
+		niche,
+		countriesRPM,
+		countryTiers.arab,
+		countryTiers.top,
+		nicheMultipliers,
+	]);
 
 	useEffect(() => {
 		if (country && niche) {
@@ -209,7 +224,15 @@ function App() {
 
 			setVideoEarnings(dailyEarning);
 		}
-	}, [videoViews, country, niche]);
+	}, [
+		videoViews,
+		country,
+		niche,
+		countriesRPM,
+		countryTiers.arab,
+		countryTiers.top,
+		nicheMultipliers,
+	]);
 
 	useEffect(() => {
 		if (country && niche) {
@@ -247,10 +270,19 @@ function App() {
 
 			setChannelEarningsMoney(totalEarnings);
 		}
-	}, [channelEarnings, country, niche]);
+	}, [
+		channelEarnings,
+		country,
+		niche,
+		countriesRPM,
+		countryTiers.arab,
+		countryTiers.top,
+		nicheMultipliers,
+	]);
 
 	const handleCountry = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		if (e.target.value !== "--Select a Country--") setCountry(e.target.value as keyof typeof countriesRPM);
+		if (e.target.value !== "--Select a Country--")
+			setCountry(e.target.value as keyof typeof countriesRPM);
 	};
 
 	const handleNiche = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -327,7 +359,7 @@ function App() {
 					title: channelData.title,
 					country: channelData.country,
 					image: channelData.image,
-					banner: channelData.banner
+					banner: channelData.banner,
 				});
 			}
 		} catch (err) {

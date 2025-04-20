@@ -1,6 +1,10 @@
 import { FaCircleExclamation } from "react-icons/fa6";
 
-const Toast = ({ title }) => {
+interface ToastProps {
+  title: string;
+}
+
+const Toast = ({ title }: ToastProps) => {
 	{
 		return (
 			<div className="fixed inset-0">
