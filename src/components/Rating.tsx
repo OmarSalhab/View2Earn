@@ -2,14 +2,29 @@ import { useState, useEffect } from "react";
 import supabase from "../utils/supabase-client";
 import Comment from "./Comment";
 import Toast from "./Toast";
+
+interface CommentType {
+	id: number;
+	name: string;
+	description: string;
+	email: string;
+	created_at: string;
+	parent_id?: number;
+	replies?: CommentType[];
+}
+
 const Rating = () => {
-	const [comments, setComments] = useState<any>([]);
-	const [comment, setComment] = useState<any>({
+	const [comments, setComments] = useState<CommentType[]>([]);
+	const [comment, setComment] = useState<{
+		name: string;
+		description: string;
+		email: string;
+	}>({
 		name: "",
 		description: "",
 		email: "",
 	});
-	const [replayTo, setReplayTo] = useState("");
+	const [replayTo, setReplayTo] = useState<number | null>(null);
 
 	const [emptyFieldsError, setEmptyFieldsError] = useState(false);
 	const [emailError, setEmailError] = useState(false);
@@ -31,8 +46,8 @@ const Rating = () => {
 		fetchComments();
 	}, []);
 
-	const groupComments = (comments: any[]) => {
-		const commentMap: { [key: string]: any } = {};
+	const groupComments = (comments: CommentType[]) => {
+		const commentMap: { [key: string]: CommentType & { replies: CommentType[] } } = {};
 
 		// Create a map of comments by their ID
 		comments.forEach((comment) => {
@@ -40,7 +55,7 @@ const Rating = () => {
 		});
 
 		// Assign replies to their parent comments
-		const rootComments: any[] = [];
+		const rootComments: CommentType[] = [];
 		comments.forEach((comment) => {
 			if (comment.parent_id) {
 				commentMap[comment.parent_id]?.replies.push(commentMap[comment.id]);
@@ -48,12 +63,11 @@ const Rating = () => {
 				rootComments.push(commentMap[comment.id]);
 			}
 		});
-		console.log(comments);
 
 		return rootComments;
 	};
 
-	const renderComments = (comments: any[]) => {
+	const renderComments = (comments: CommentType[]) => {
 		return comments.map((mapedComment) => (
 			<div key={mapedComment.id} className="w-full text-left flex flex-col">
 				<Comment
@@ -75,7 +89,7 @@ const Rating = () => {
 							</h3>
 							<button
 								onClick={() => {
-									setReplayTo("");
+									setReplayTo(null);
 									setEmptyFieldsError(false);
 									setEmailError(false);
 									setNameError(false);
@@ -108,7 +122,9 @@ const Rating = () => {
 								></textarea>
 							</div>
 							<div className="flex flex-col mt-7">
-								<label className="sm:text-xl font-medium opacity-70">Name *</label>
+								<label className="sm:text-xl font-medium opacity-70">
+									Name *
+								</label>
 								<input
 									value={comment.name}
 									onChange={(e) => {
@@ -150,7 +166,7 @@ const Rating = () => {
 					</div>
 				)}
 				{/* Render replies recursively */}
-				{mapedComment.replies.length > 0 && (
+				{(mapedComment.replies && mapedComment.replies.length > 0) && (
 					<div className="ml-8">{renderComments(mapedComment.replies)}</div>
 				)}
 			</div>
@@ -214,11 +230,11 @@ const Rating = () => {
 		}
 	};
 
-	const insertReplay = async (target) => {
+	const insertReplay = async (target: number) => {
 		try {
 			const res = await supabase
 				.from("comments")
-				.insert({ ...comment, parent_id: parseInt(target) });
+				.insert({ ...comment, parent_id: target });
 			if (res.error) throw new Error(`${res.error}`);
 			return true;
 		} catch (err) {
@@ -226,7 +242,7 @@ const Rating = () => {
 		}
 	};
 
-	const handleSubmit = async (e: any) => {
+	const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		if (!handleFormValidty()) return;
 		if (!(await insertComment())) {
@@ -252,7 +268,7 @@ const Rating = () => {
 			console.error(err);
 		}
 	};
-	const handleReplay = async (e: any, target: any) => {
+	const handleReplay = async (e: React.MouseEvent<HTMLButtonElement>, target: number) => {
 		e.preventDefault();
 		if (!handleFormValidty()) return;
 		if (!(await insertReplay(target))) {
@@ -275,7 +291,7 @@ const Rating = () => {
 			}, 1800);
 			setComment({ name: "", email: "", description: "" });
 
-			setReplayTo("");
+			setReplayTo(null);
 			setEmptyFieldsError(false);
 			setEmailError(false);
 			setNameError(false);
@@ -314,7 +330,9 @@ const Rating = () => {
 							></textarea>
 						</div>
 						<div className="flex flex-col mt-7">
-							<label className="sm:text-xl font-medium opacity-70 ">Name *</label>
+							<label className="sm:text-xl font-medium opacity-70 ">
+								Name *
+							</label>
 							<input
 								value={comment.name}
 								onChange={(e) => {
@@ -329,7 +347,9 @@ const Rating = () => {
 							/>
 						</div>
 						<div className="flex flex-col ">
-							<label className="sm:text-xl font-medium opacity-70 ">Email *</label>
+							<label className="sm:text-xl font-medium opacity-70 ">
+								Email *
+							</label>
 							<input
 								value={comment.email}
 								onChange={(e) => {

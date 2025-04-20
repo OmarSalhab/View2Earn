@@ -36,7 +36,15 @@ function App() {
 		"0",
 		"0",
 	]);
-	const [channelEarnings, setChannelEarnings] = useState<object>({
+	interface ChannelEarnings {
+		viewCount: number;
+		title: string;
+		country: string;
+		image: string | null;
+		banner: string;
+	}
+
+	const [channelEarnings, setChannelEarnings] = useState<ChannelEarnings>({
 		viewCount: 0,
 		title: "",
 		country: "",
@@ -106,7 +114,7 @@ function App() {
 		],
 	};
 
-	const nicheMultipliers: any = {
+	const nicheMultipliers: Record<string, [number, number]> = {
 		"Finance & Investing": [1.0, 2.75], // Example: 2.75x for top-tier countries
 		"Make Money Online": [0.9, 2.5],
 		"Digital Marketing": [0.8, 2.0],
@@ -242,7 +250,7 @@ function App() {
 	}, [channelEarnings, country, niche]);
 
 	const handleCountry = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		if (e.target.value !== "--Select a Country--") setCountry(e.target.value);
+		if (e.target.value !== "--Select a Country--") setCountry(e.target.value as keyof typeof countriesRPM);
 	};
 
 	const handleNiche = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -284,7 +292,7 @@ function App() {
 			return false;
 		}
 	};
-	const handleUrl = (e: any) => {
+	const handleUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setUrl({ ...url, path: e.target.value });
 	};
 
@@ -313,8 +321,14 @@ function App() {
 			const channelData = await fetchByChannel(url.path);
 			console.log(channelData);
 
-			if (channelData) {
-				setChannelEarnings(channelData);
+			if (channelData && !(channelData instanceof Error)) {
+				setChannelEarnings({
+					viewCount: channelData.viewCount,
+					title: channelData.title,
+					country: channelData.country,
+					image: channelData.image,
+					banner: channelData.banner
+				});
 			}
 		} catch (err) {
 			console.error("Error fetching channel data:", err);
@@ -404,7 +418,7 @@ function App() {
 					<PsudueCard color="error">
 						<p className="font-extrabold text-black">
 							See more monetized countries - log in to your{" "}
-							<span className="text-orange-500">TunePocket Account</span>
+							<span className="text-orange-500">View2Earn Account</span>
 						</p>
 					</PsudueCard>
 
@@ -443,7 +457,7 @@ function App() {
 							Industry / Niche
 						</label>
 						<select
-							onClick={handleNiche}
+							onChange={handleNiche}
 							defaultValue={"--Select a Industry / Niche--"}
 							className="text-md border-black border"
 						>
@@ -516,22 +530,22 @@ function App() {
 							Estimated Daily Earnings
 						</label>
 						<div className="text-center sm:text-3xl font-bold text-orange-500">
-							{formatCurrency(earnings[0][0])} ~{" "}
-							{formatCurrency(earnings[0][1])}
+							{formatCurrency(parseFloat(earnings[0][0]))} ~{" "}
+							{formatCurrency(parseFloat(earnings[0][1]))}
 						</div>
 						<label className="mt-20 text-xl font-medium ">
 							Estimated Monthly Earnings
 						</label>
 						<div className="text-center sm:text-3xl font-bold text-orange-500">
-							{formatCurrency(earnings[1][0])} ~{" "}
-							{formatCurrency(earnings[1][1])}
+							{formatCurrency(parseFloat(earnings[1][0]))} ~{" "}
+							{formatCurrency(parseFloat(earnings[1][1]))}
 						</div>
 						<label className="mt-20 text-xl font-medium">
 							Estimated Yearly Earnings
 						</label>
 						<div className="mb-20 text-center sm:text-3xl font-bold text-orange-500">
-							{formatCurrency(earnings[2][0])} ~{" "}
-							{formatCurrency(earnings[2][1])}
+							{formatCurrency(parseFloat(earnings[2][0]))} ~{" "}
+							{formatCurrency(parseFloat(earnings[2][1]))}
 						</div>
 					</div>
 				</section>
@@ -563,7 +577,7 @@ function App() {
 					<PsudueCard color="error">
 						<p className="font-extrabold text-black">
 							See more monetized countries - log in to your
-							<span className="text-orange-500">TunePocket Account</span>
+							<span className="text-orange-500"> View2Earn Account</span>
 						</p>
 					</PsudueCard>
 					<div className="flex flex-col gap-4 w-full bg-[#faf7f7b9] items-center justify-center mb-20">
@@ -597,7 +611,7 @@ function App() {
 							Industry / Niche
 						</label>
 						<select
-							onClick={handleNiche}
+							onChange={handleNiche}
 							defaultValue={"--Select a Industry / Niche--"}
 							className="text-md border-black border"
 						>
@@ -662,8 +676,8 @@ function App() {
 								Estimated Total Earnings
 							</label>
 							<div className="text-center sm:text-3xl font-bold text-orange-500 border-2 border-red-500  rounded-md border-dashed flex justify-center items-center h-48 w-[90%]">
-								{formatCurrency(videoEarnings[0])} ~{" "}
-								{formatCurrency(videoEarnings[1])}
+								{formatCurrency(parseFloat(videoEarnings[0]))} ~{" "}
+								{formatCurrency(parseFloat(videoEarnings[1]))}
 							</div>
 						</div>
 					</div>
@@ -697,7 +711,7 @@ function App() {
 					<PsudueCard color="error">
 						<p className="font-extrabold text-black">
 							See more monetized countries - log in to your{" "}
-							<span className="text-orange-500">TunePocket Account</span>
+							<span className="text-orange-500">View2Earn Account</span>
 						</p>
 					</PsudueCard>
 					<div className="flex flex-col gap-4 w-full bg-[#faf7f7b9] items-center justify-center mb-10 pb-10">
@@ -730,7 +744,7 @@ function App() {
 							Industry / Niche
 						</label>
 						<select
-							onClick={handleNiche}
+							onChange={handleNiche}
 							defaultValue={"--Select a Industry / Niche--"}
 							className="text-md border-black border"
 						>
@@ -782,7 +796,7 @@ function App() {
 									/>
 
 									<img
-										src={channelEarnings?.image}
+										src={channelEarnings?.image ?? undefined}
 										alt="Channel Profile"
 										className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full border-4 border-[#b43c2c] shadow-lg"
 									/>
@@ -804,8 +818,8 @@ function App() {
 								Estimated Total Earnings
 							</label>
 							<div className="text-center sm:text-3xl font-bold text-orange-500 border-2 border-red-500  rounded-md border-dashed flex justify-center items-center h-48 w-[90%]">
-								{formatCurrency(channelEarningsMoney[0])} ~{" "}
-								{formatCurrency(channelEarningsMoney[1])}
+								{formatCurrency(parseFloat(channelEarningsMoney[0]))} ~{" "}
+								{formatCurrency(parseFloat(channelEarningsMoney[1]))}
 							</div>
 						</div>
 					</div>
