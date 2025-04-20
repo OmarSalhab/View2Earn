@@ -18,19 +18,24 @@ function App() {
 		valid: false,
 	});
 	const [error, setError] = useState<boolean>(false);
-	const [niche, setNiche] = useState<keyof typeof nicheRPM | undefined>();
+	const [niche, setNiche] = useState<
+		keyof typeof nicheMultipliers | undefined
+	>();
 	const [earnings, setEarnings] = useState<string[][]>([
 		["0", "0"],
 		["0", "0"],
 		["0", "0"],
 	]);
-	const [videoViews, setVideoViews] = useState<number>({
+	const [videoViews, setVideoViews] = useState({
 		viewCount: 0,
 		thumbnail: "",
 		title: "",
 	});
-	const [videoEarnings, setVideoEarnings] = useState<string[]>(['0', '0']);
-	const [channelEarningsMoney, setChannelEarningsMoney] = useState<string[]>(['0', '0']);
+	const [videoEarnings, setVideoEarnings] = useState<string[]>(["0", "0"]);
+	const [channelEarningsMoney, setChannelEarningsMoney] = useState<string[]>([
+		"0",
+		"0",
+	]);
 	const [channelEarnings, setChannelEarnings] = useState<object>({
 		viewCount: 0,
 		title: "",
@@ -80,7 +85,7 @@ function App() {
 			"Canada",
 			"Germany",
 			"France",
-			"Japan"
+			"Japan",
 		],
 		arab: [
 			"United Arab Emirates",
@@ -98,11 +103,9 @@ function App() {
 			"Egypt",
 			"India",
 			"Brazil",
-
 		],
 	};
 
-	
 	const nicheMultipliers: any = {
 		"Finance & Investing": [1.0, 2.75], // Example: 2.75x for top-tier countries
 		"Make Money Online": [0.9, 2.5],
@@ -164,7 +167,6 @@ function App() {
 
 	useEffect(() => {
 		if (country && niche) {
-
 			const [countryMin, countryMax] = countriesRPM[country];
 			const [nicheMinMultiplier, nicheMaxMultiplier] = nicheMultipliers[niche];
 
@@ -186,25 +188,23 @@ function App() {
 			const dailyMaxRPM = countryMax * adjustedNicheMax;
 
 			// Earnings for 100K views with platform fees
-			const dailyMinEarnings = (((dailyMinRPM * videoViews.viewCount) / 1000) * 0.7).toFixed(
-				2
-			); // 30% fee
-			const dailyMaxEarnings = (((dailyMaxRPM * videoViews.viewCount) / 1000) * 0.7).toFixed(
-				2
-			);
+			const dailyMinEarnings = (
+				((dailyMinRPM * videoViews.viewCount) / 1000) *
+				0.7
+			).toFixed(2); // 30% fee
+			const dailyMaxEarnings = (
+				((dailyMaxRPM * videoViews.viewCount) / 1000) *
+				0.7
+			).toFixed(2);
 
 			const dailyEarning = [dailyMinEarnings, dailyMaxEarnings];
-
-			
 
 			setVideoEarnings(dailyEarning);
 		}
 	}, [videoViews, country, niche]);
 
-	
 	useEffect(() => {
 		if (country && niche) {
-
 			const [countryMin, countryMax] = countriesRPM[country];
 			const [nicheMinMultiplier, nicheMaxMultiplier] = nicheMultipliers[niche];
 
@@ -226,16 +226,16 @@ function App() {
 			const totalMaxRPM = countryMax * adjustedNicheMax;
 
 			// Earnings for 100K views with platform fees
-			const totalMinEarnings = (((totalMinRPM * channelEarnings.viewCount) / 1000) * 0.7).toFixed(
-				2
-			); // 30% fee
-			const totalMaxEarnings = (((totalMaxRPM * channelEarnings.viewCount) / 1000) * 0.7).toFixed(
-				2
-			);
+			const totalMinEarnings = (
+				((totalMinRPM * channelEarnings.viewCount) / 1000) *
+				0.7
+			).toFixed(2); // 30% fee
+			const totalMaxEarnings = (
+				((totalMaxRPM * channelEarnings.viewCount) / 1000) *
+				0.7
+			).toFixed(2);
 
 			const totalEarnings = [totalMinEarnings, totalMaxEarnings];
-
-			
 
 			setChannelEarningsMoney(totalEarnings);
 		}
@@ -1070,10 +1070,10 @@ function App() {
 					</p>
 				</section>
 				<section className="max-w-[750px] w-full h-full mb-12">
-					<Rating/>
+					<Rating />
 				</section>
 			</main>
-				<Footer />
+			<Footer />
 		</>
 	);
 }
