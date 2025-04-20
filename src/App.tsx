@@ -725,7 +725,7 @@ function App() {
 				</section>
 				{/* ************************************** VIDEOID CALCULATER ************************************** */}
 				<img
-					src="public\Images\make-money-on-youtube.webp"
+					src="D:\vsCode\View2Earn\public\Images\make-money-on-youtube.webp"
 					className="-mt-8 md:max-w-[750px] h-full"
 				/>
 
@@ -1076,7 +1076,7 @@ function App() {
 				</section>
 
 				<img
-					src="public\Images\reflective-youtube-logo-money.webp"
+					src="D:\vsCode\View2Earn\public\Images\reflective-youtube-logo-money.webp"
 					className="mt-10 md:max-w-[750px] h-full"
 				/>
 				<section className="flex flex-col max-w-[750px] h-full">

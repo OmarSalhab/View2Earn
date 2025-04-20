@@ -3,7 +3,7 @@ const Header = () => {
 		<header className="flex w-full h-20 md:pl-60 items-center box-border bg-[#b43c2c] text-slate-50 font-bold p-1">
 			<div className="flex items-center">
 				<img
-					src="../public/Images/favicon.webp"
+					src="D:\vsCode\View2Earn\public\Images\favicon.webp"
 					alt="logo"
 					className="w-14 h-14"
 				/>{" "}
