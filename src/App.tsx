@@ -725,7 +725,7 @@ function App() {
 				</section>
 				{/* ************************************** VIDEOID CALCULATER ************************************** */}
 				<img
-					src="https://llcuimegzpvhxgidwzlf.supabase.co/storage/v1/object/sign/assets/images/make-money-on-youtube.webp?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzUwODVmZGY2LTEyZTMtNDlkMS05ZjJlLTg1YzA1NGQzMzNiZiJ9.eyJ1cmwiOiJhc3NldHMvaW1hZ2VzL21ha2UtbW9uZXktb24teW91dHViZS53ZWJwIiwiaWF0IjoxNzQ1MTY5OTk0LCJleHAiOjE3NzY3MDU5OTR9.jPE2-Smhem3Cb2HCm0ieQkBjMZs5ZcAXyzECRToA7_8"
+					src="https://llcuimegzpvhxgidwzlf.supabase.co/storage/v1/object/public/vassets/images/make-money-on-youtube.webp"
 					className="-mt-8 md:max-w-[750px] h-full"
 				/>
 
@@ -1076,7 +1076,7 @@ function App() {
 				</section>
 
 				<img
-					src="https://llcuimegzpvhxgidwzlf.supabase.co/storage/v1/object/sign/assets/images/reflective-youtube-logo-money.webp?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzUwODVmZGY2LTEyZTMtNDlkMS05ZjJlLTg1YzA1NGQzMzNiZiJ9.eyJ1cmwiOiJhc3NldHMvaW1hZ2VzL3JlZmxlY3RpdmUteW91dHViZS1sb2dvLW1vbmV5LndlYnAiLCJpYXQiOjE3NDUxNzAwMzUsImV4cCI6MTc3NjcwNjAzNX0.b3wZ3Poxek8M8VSbCCoTEYdCMUaLkUedpr7jhjHt-hg"
+					src="https://llcuimegzpvhxgidwzlf.supabase.co/storage/v1/object/public/vassets/images/reflective-youtube-logo-money.webp"
 					className="mt-10 md:max-w-[750px] h-full"
 				/>
 				<section className="flex flex-col max-w-[750px] h-full">
