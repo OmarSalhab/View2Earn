@@ -26,7 +26,7 @@ const getChannelId = async (url: string) => {
 	// return channelId?.trim();
 };
 
-export const fetchByVideo = async (url: any) => {
+export const fetchByVideo = async (url: string) => {
 	try {
 		const videoId = getVideoId(url);
 		if (!videoId) return;
@@ -42,7 +42,7 @@ export const fetchByVideo = async (url: any) => {
 				},
 			}
 		).then((res) => res.json());
-		console.log(res);
+		
 
 		return {
 			viewCount: res.items[0].statistics.viewCount,
@@ -54,7 +54,7 @@ export const fetchByVideo = async (url: any) => {
 	}
 };
 
-export const fetchByChannel = async (url: any) => {
+export const fetchByChannel = async (url: string) => {
 	try {
 		const channelId = await getChannelId(url);
 
@@ -74,7 +74,7 @@ export const fetchByChannel = async (url: any) => {
 			}
 		).then((res) => res.json());
 		if (!res.items[0]) return new Error("Invalid channel URL");
-		console.log(res.items[0].snippet.thumbnails?.high?.url);
+		
 		const image =
 			res.items[0].snippet.thumbnails?.high?.url ??
 			"https://cdn.vectorstock.com/i/500p/21/98/male-profile-picture-vector-1862198.jpg";

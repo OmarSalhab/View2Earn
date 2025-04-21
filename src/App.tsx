@@ -35,8 +35,7 @@ function App() {
 	});
 	const [videoEarnings, setVideoEarnings] = useState<string[]>(["0", "0"]);
 	const [channelEarningsMoney, setChannelEarningsMoney] = useState<string[]>([
-		"0",
-		"0",
+		"0", "0",
 	]);
 	interface ChannelEarnings {
 		viewCount: number;
@@ -88,36 +87,38 @@ function App() {
 		}),
 		[]
 	);
-	const countryTiers = {
-		top: [
-			"United States",
-			"Norway",
-			"Australia",
-			"Switzerland",
-			"United Kingdom",
-			"Canada",
-			"Germany",
-			"France",
-			"Japan",
-		],
-		arab: [
-			"United Arab Emirates",
-			"Saudi Arabia",
-			"Jordan",
-			"Qatar",
-			"Kuwait",
-			"Bahrain",
-			"Oman",
-			"Iraq",
-			"Lebanon",
-			"Palestine",
-			"Syria",
-			"Yemen",
-			"Egypt",
-			"India",
-			"Brazil",
-		],
-	};
+	const countryTiers = useMemo(()=>(
+		{
+			top: [
+				"United States",
+				"Norway",
+				"Australia",
+				"Switzerland",
+				"United Kingdom",
+				"Canada",
+				"Germany",
+				"France",
+				"Japan",
+			],
+			arab: [
+				"United Arab Emirates",
+				"Saudi Arabia",
+				"Jordan",
+				"Qatar",
+				"Kuwait",
+				"Bahrain",
+				"Oman",
+				"Iraq",
+				"Lebanon",
+				"Palestine",
+				"Syria",
+				"Yemen",
+				"Egypt",
+				"India",
+				"Brazil",
+			],
+		}
+	),[]) 
 
 	const nicheMultipliers = useMemo(
 		() =>
@@ -137,16 +138,17 @@ function App() {
 		[]
 	);
 	useEffect(() => {
-		if (country && niche) {
+		if (country && niche && countriesRPM[country] && nicheMultipliers[niche]) {
+			
 			// Calculate MIN and MAX RPM based on country tier and niche
 			const [countryMin, countryMax] = countriesRPM[country];
 			const [nicheMinMultiplier, nicheMaxMultiplier] = nicheMultipliers[niche];
 
 			// Adjust multipliers based on country tier
 			let tierAdjustment = 1.0;
-			if (countryTiers.top.includes(country)) {
+			if (countryTiers.top?.includes(country)) {
 				tierAdjustment = 1.0; // Full multiplier for top-tier
-			} else if (countryTiers.arab.includes(country)) {
+			} else if (countryTiers.arab?.includes(country)) {
 				tierAdjustment = 0.7; // Arab countries at 70% of the multiplier
 			} else {
 				tierAdjustment = 0.5; // Other countries at 50%
@@ -187,19 +189,20 @@ function App() {
 		countriesRPM,
 		countryTiers.arab,
 		countryTiers.top,
-		nicheMultipliers,
+		nicheMultipliers
+		
 	]);
 
 	useEffect(() => {
-		if (country && niche) {
+		if (country && niche && countriesRPM[country] && nicheMultipliers[niche]) {
 			const [countryMin, countryMax] = countriesRPM[country];
 			const [nicheMinMultiplier, nicheMaxMultiplier] = nicheMultipliers[niche];
 
 			// Adjust multipliers based on country tier
 			let tierAdjustment = 1.0;
-			if (countryTiers.top.includes(country)) {
+			if (countryTiers.top?.includes(country)) {
 				tierAdjustment = 1.0; // Full multiplier for top-tier
-			} else if (countryTiers.arab.includes(country)) {
+			} else if (countryTiers.arab?.includes(country)) {
 				tierAdjustment = 0.7; // Arab countries at 70% of the multiplier
 			} else {
 				tierAdjustment = 0.5; // Other countries at 50%
@@ -233,19 +236,20 @@ function App() {
 		countriesRPM,
 		countryTiers.arab,
 		countryTiers.top,
-		nicheMultipliers,
+		nicheMultipliers
+		
 	]);
 
 	useEffect(() => {
-		if (country && niche) {
+		if (country && niche && countriesRPM[country] && nicheMultipliers[niche]) {
 			const [countryMin, countryMax] = countriesRPM[country];
 			const [nicheMinMultiplier, nicheMaxMultiplier] = nicheMultipliers[niche];
 
 			// Adjust multipliers based on country tier
 			let tierAdjustment = 1.0;
-			if (countryTiers.top.includes(country)) {
+			if (countryTiers.top?.includes(country)) {
 				tierAdjustment = 1.0; // Full multiplier for top-tier
-			} else if (countryTiers.arab.includes(country)) {
+			} else if (countryTiers.arab?.includes(country)) {
 				tierAdjustment = 0.7; // Arab countries at 70% of the multiplier
 			} else {
 				tierAdjustment = 0.5; // Other countries at 50%
@@ -279,7 +283,7 @@ function App() {
 		countriesRPM,
 		countryTiers.arab,
 		countryTiers.top,
-		nicheMultipliers,
+		nicheMultipliers
 	]);
 
 	const handleCountry = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -289,28 +293,40 @@ function App() {
 
 	const handleNiche = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		if (e.target.value !== "--Select a Industry / Niche--")
-			setNiche(e.target.value);
+			setNiche(e.target.value as keyof typeof nicheMultipliers);
 	};
 
-	const handleDrag = (e: React.DragEvent<HTMLSpanElement>) => {
+	const handleSliderMove = (clientX: number) => {
 		if (!sliderRef.current) return;
-
+	
 		// Get the bounding rectangle of the slider container
 		const sliderRect = sliderRef.current.getBoundingClientRect();
-
+	
 		// Calculate the new position relative to the slider width
 		const newLeft = Math.min(
-			Math.max(e.clientX - sliderRect.left, 0),
+			Math.max(clientX - sliderRect.left, 0),
 			sliderRect.width
 		);
-
+	
 		// Update the views state based on the new position
 		const newViews = Math.floor((newLeft / sliderRect.width) * 100000); // Assuming max views = 100,000
 		setViews(newViews);
 	};
-
-	const handleDragEnd = (e: React.DragEvent<HTMLSpanElement>) => {
-		handleDrag(e); // Ensure the final position is set
+	
+	const handleMouseDrag = (e: React.MouseEvent<HTMLSpanElement>) => {
+		handleSliderMove(e.clientX);
+	};
+	
+	const handleTouchMove = (e: React.TouchEvent<HTMLSpanElement>) => {
+		handleSliderMove(e.touches[0].clientX);
+	};
+	
+	const handleMouseDragEnd = (e: React.MouseEvent<HTMLSpanElement>) => {
+		handleSliderMove(e.clientX); // Ensure the final position is set
+	};
+	
+	const handleTouchEnd = (e: React.TouchEvent<HTMLSpanElement>) => {
+		handleSliderMove(e.changedTouches[0].clientX); // Ensure the final position is set
 	};
 
 	const validateUrl = () => {
@@ -335,10 +351,11 @@ function App() {
 
 		if (validateUrl()) {
 			try {
+				setVideoViews({...videoViews,thumbnail:'',title:''})
 				setVideoLoading(true)
 				const getVideoViews = async () => {
 					const res = await fetchByVideo(url.path);
-
+					
 					if (res) {
 						setVideoViews(res);
 					}
@@ -355,9 +372,9 @@ function App() {
 	const handleChannelSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		try {
+			setChannelEarnings({...channelEarnings,image:'',banner:'',title:''})
 			setChannelLoading(true)
 			const channelData = await fetchByChannel(url.path);
-			
 
 			if (channelData && !(channelData instanceof Error)) {
 				setChannelEarnings({
@@ -549,8 +566,10 @@ function App() {
 							</span>
 							<span
 								draggable={country && niche ? "true" : "false"}
-								onDrag={handleDrag}
-								onDragEnd={handleDragEnd}
+								onDrag={handleMouseDrag}
+								onDragEnd={handleMouseDragEnd}
+								onTouchMove={handleTouchMove} // Handle touch move
+								onTouchEnd={handleTouchEnd} // Handle touch end
 								className={`${
 									country && niche
 										? "bg-slate-500"
@@ -592,6 +611,7 @@ function App() {
 				{/* ************************************** VIEWS CALCULATER ************************************** */}
 				<img
 					src="https://www.tunepocket.com/wp-main/uploads/Make-money-on-YouTube-nursery-rhymes-videos.jpg"
+					alt="Make-money-on-YouTube"
 					className="mt-8 md:max-w-[750px] h-full"
 				/>
 				{/* VIDEOID CALCULATER */}
@@ -705,7 +725,7 @@ function App() {
 								</label>
 							</>
 						)}
-						{videoLoading &&  <div className="w-full text-xl font-semibold text-center">loading..</div>}
+						{videoLoading &&  <div className="w-full text-xl font-semibold text-center mt-4">loading..</div>}
 						<label className="mt-20 text-lg font-semibold">
 							Number of Total Video Views
 						</label>
@@ -725,6 +745,7 @@ function App() {
 				</section>
 				{/* ************************************** VIDEOID CALCULATER ************************************** */}
 				<img
+				alt="make-money-on-youtube"
 					src="https://llcuimegzpvhxgidwzlf.supabase.co/storage/v1/object/public/vassets/images/make-money-on-youtube.webp"
 					className="-mt-8 md:max-w-[750px] h-full"
 				/>
@@ -847,7 +868,7 @@ function App() {
 								</label>
 							</>
 						)}
-						{channelLoading &&  <div className="w-full text-xl font-semibold text-center">loading..</div>}
+						{channelLoading &&  <div className="w-full text-xl font-semibold text-center mt-4">loading..</div>}
 
 						<label className="mt-20 text-lg font-semibold">
 							Number of Total Channel Views
@@ -994,10 +1015,10 @@ function App() {
 							</p>
 						</PsudueCard>
 						<p className="opacity-60 font-semibold text-[15px] pt-5 leading-[27px]">
-							💰 RPM is one of the most realistic metrics for estimating your
-							actual YouTube earnings, because it reflects your net revenue
-							after YouTube's cut is taken out (currently 45%).
-							<br />
+								 💰 RPM is one of the most realistic metrics for estimating your
+								actual YouTube earnings, because it reflects your net revenue
+								after YouTube's cut is taken out (currently 45%).
+								<br />
 						</p>
 						<h6 className="pt-10 pb-5 font-bold  text-2xl">How RPM Works</h6>
 						<p className="opacity-60 font-semibold text-[15px] leading-[50px]">
@@ -1076,6 +1097,7 @@ function App() {
 				</section>
 
 				<img
+				alt="reflective-youtube-logo-money"
 					src="https://llcuimegzpvhxgidwzlf.supabase.co/storage/v1/object/public/vassets/images/reflective-youtube-logo-money.webp"
 					className="mt-10 md:max-w-[750px] h-full"
 				/>
