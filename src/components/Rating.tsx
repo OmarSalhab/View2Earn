@@ -156,7 +156,7 @@ const Rating = () => {
 								/>
 							</div>
 							<button
-								onClick={(e) => handleReplay(e, mapedComment.id)}
+								onClick={handleReplay(mapedComment.id)}
 								className="sm:w-[30%] w-full bg-[#b43c2c] text-white font-semibold text-lg mt-5 py-3 px-2 rounded-sm hover:bg-orange-600 transition duration-200 ease-in-out"
 							>
 								Post Comment
@@ -268,7 +268,8 @@ const Rating = () => {
 			console.error(err);
 		}
 	};
-	const handleReplay = async (e: React.MouseEvent<HTMLButtonElement>, target: number) => {
+	//currying function
+	const handleReplay =  (target: number) => async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		if (!handleFormValidty()) return;
 		if (!(await insertReplay(target))) {
